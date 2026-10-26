@@ -1,0 +1,66 @@
+@import 'tailwindcss';
+@import '../../../src/styles/theme.css';
+
+/* Pages from Keycloakify carry their own markup; these rules style the
+   plain elements inside the card so every page matches. */
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background font-geist text-foreground antialiased;
+  }
+  #kc-content a {
+    @apply text-foreground underline-offset-4 hover:underline;
+  }
+  #kc-content p,
+  #kc-content li {
+    @apply text-sm text-muted-foreground;
+  }
+  #kc-content ol,
+  #kc-content ul {
+    @apply mb-4 list-inside space-y-2;
+  }
+  #kc-content ol {
+    @apply list-outside list-decimal ps-5;
+  }
+  #kc-content li > p {
+    @apply my-0;
+  }
+  #kc-content img {
+    @apply mx-auto my-3 rounded-md bg-white p-2;
+  }
+  #kc-content hr {
+    @apply my-6;
+  }
+  #kc-content input[type='checkbox'],
+  #kc-content input[type='radio'] {
+    @apply size-4 accent-primary;
+  }
+  #kc-content label:has(input[type='checkbox']) {
+    @apply inline-flex items-center gap-2;
+  }
+  #kc-content code,
+  #kc-totp-secret-key {
+    @apply font-mono text-xs break-all;
+  }
+  #kc-social-providers h2 {
+    @apply my-4 flex items-center gap-3 text-xs text-muted-foreground uppercase before:h-px before:flex-1 before:bg-border after:h-px after:flex-1 after:bg-border;
+  }
+}
+
+.af-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  background: currentColor;
+  mask: var(--af-icon) center / contain no-repeat;
+}
+.af-eye {
+  --af-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E");
+}
+.af-eye-off {
+  --af-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.9 4.2A10.4 10.4 0 0 1 12 4c7 0 10 8 10 8a13 13 0 0 1-1.7 2.7M6.6 6.6A13.5 13.5 0 0 0 2 12s3 7 10 7a9.7 9.7 0 0 0 5.4-1.6'/%3E%3Cpath d='M9.9 9.9a3 3 0 0 0 4.2 4.2M2 2l20 20'/%3E%3C/svg%3E");
+}

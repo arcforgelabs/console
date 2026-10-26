@@ -28,3 +28,5 @@ jobs:
       - run: pnpm test:ui
       - run: pnpm build
       - run: pnpm build:worker
+      # Keycloak login theme (needs Java and Maven, both on the runner).
+      - run: pnpm --filter @arcforgelabs/accounts-theme build:jar

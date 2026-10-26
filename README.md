@@ -30,6 +30,7 @@ The Worker never trusts a header without checking the token.
 | ---------------- | ----------------------------------------------------------------------- |
 | `src/`           | React app (shadcn/ui, TanStack Router, Tailwind 4)                      |
 | `worker/`        | Cloudflare Worker: Access check, `/api/me`, `/api/me/claws`             |
+| `theme/`         | Keycloak sign-in theme for accounts.arcforge.au (see `theme/README.md`) |
 | `wrangler.jsonc` | Worker config for local runs (deploy config lives in the platform repo) |
 
 ## Run it
@@ -69,7 +70,9 @@ secrets. This repo holds no secrets and no customer data.
 Release: push a tag `vX.Y.Z`. The Release workflow builds that commit on a
 GitHub-hosted runner and attaches `arcforge-console-vX.Y.Z.tar.gz` (holds
 `dist/` and `dist-worker/`) and its `.sha256` file to the GitHub release.
-The platform repo pins the tag and the hash. The deploy host never runs pnpm.
+It also attaches `arcforge-keycloak-theme-vX.Y.Z.jar` (the sign-in theme)
+and its `.sha256` file. The platform repo pins the tag and the hashes. The
+deploy host never runs pnpm.
 
 Claw record:
 

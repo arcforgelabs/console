@@ -37,3 +37,8 @@ dist-ssr
 .wrangler
 dist-worker
 .dev.vars
+
+# Keycloak theme
+theme/dist
+theme/dist_keycloak
+theme/public/keycloakify-dev-resources

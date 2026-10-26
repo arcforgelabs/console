@@ -18,3 +18,8 @@
 
 # Ignore auto generated routeTree.gen.ts
 /src/routeTree.gen.ts
+
+# Keycloak theme: generated files
+theme/public/keycloakify-dev-resources
+theme/dist_keycloak
+theme/src/kc.gen.tsx

@@ -2,9 +2,9 @@ name: Release
 
 # Push a tag such as v0.1.0, or run the workflow by hand with a version
 # (it then tags the commit it built). This builds the commit on a
-# GitHub-hosted runner and attaches the bundle and its SHA-256 file to a
-# release. The platform repo pins the tag and the hash; the deploy host
-# never runs pnpm.
+# GitHub-hosted runner and attaches the console bundle and the Keycloak
+# theme JAR, each with a SHA-256 file, to a release. The platform repo pins
+# the tag and the hashes; the deploy host never runs pnpm.
 on:
   push:
     tags: ['v*']
@@ -34,6 +34,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
       - run: pnpm build:worker
+      - run: pnpm --filter @arcforgelabs/accounts-theme build:jar
       - name: Pack bundle
         run: |
           name="arcforge-console-${VERSION}.tar.gz"
@@ -41,6 +42,10 @@ jobs:
             -czf "$name" dist dist-worker
           sha256sum "$name" > "$name.sha256"
           cat "$name.sha256"
+          jar="arcforge-keycloak-theme-${VERSION}.jar"
+          cp theme/dist_keycloak/arcforge-keycloak-theme.jar "$jar"
+          sha256sum "$jar" > "$jar.sha256"
+          cat "$jar.sha256"
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -48,4 +53,6 @@ jobs:
           gh release create "$VERSION" \
             "arcforge-console-${VERSION}.tar.gz" \
             "arcforge-console-${VERSION}.tar.gz.sha256" \
+            "arcforge-keycloak-theme-${VERSION}.jar" \
+            "arcforge-keycloak-theme-${VERSION}.jar.sha256" \
             --target "$GITHUB_SHA" --title "$VERSION" --notes "Commit $GITHUB_SHA"
