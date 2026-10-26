@@ -66,6 +66,11 @@ secrets. This repo holds no secrets and no customer data.
 | Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)              |
 | Routing       | `/api/*` runs the Worker first; other paths serve assets with SPA fallback |
 
+Release: push a tag `vX.Y.Z`. The Release workflow builds that commit on a
+GitHub-hosted runner and attaches `arcforge-console-vX.Y.Z.tar.gz` (holds
+`dist/` and `dist-worker/`) and its `.sha256` file to the GitHub release.
+The platform repo pins the tag and the hash. The deploy host never runs pnpm.
+
 Claw record:
 
 ```json

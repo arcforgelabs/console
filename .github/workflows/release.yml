@@ -1,0 +1,41 @@
+name: Release
+
+# Push a tag such as v0.1.0. This builds the tagged commit on a
+# GitHub-hosted runner and attaches the bundle and its SHA-256 file to a
+# release. The platform repo pins the tag and the hash; the deploy host
+# never runs pnpm.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: corepack enable
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm build:worker
+      - name: Pack bundle
+        run: |
+          name="arcforge-console-${GITHUB_REF_NAME}.tar.gz"
+          tar --sort=name --owner=0 --group=0 --numeric-owner --mtime='@0' \
+            -czf "$name" dist dist-worker
+          sha256sum "$name" > "$name.sha256"
+          cat "$name.sha256"
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            "arcforge-console-${GITHUB_REF_NAME}.tar.gz" \
+            "arcforge-console-${GITHUB_REF_NAME}.tar.gz.sha256" \
+            --title "$GITHUB_REF_NAME" --notes "Commit $GITHUB_SHA"
