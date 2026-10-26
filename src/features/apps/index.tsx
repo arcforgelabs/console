@@ -3,7 +3,6 @@ import { ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 import { type CareApp, useApps } from '@/lib/console-api'
 import { day, initials } from '@/lib/format'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Card,
@@ -13,15 +12,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
+import { More } from '@/components/more'
 import { Page, QueryView } from '@/components/page'
 
 export function Apps() {
   const query = useApps()
   return (
-    <Page
-      title='Apps and care plans'
-      description='Apps Arc Forge built or runs for you. A care plan keeps each one fixed, updated and supported.'
-    >
+    <Page title='Apps' description='Apps Arc Forge built or runs for you.'>
       <QueryView query={query} what='The app list'>
         {(apps) =>
           apps.length === 0 ? (
@@ -29,7 +26,7 @@ export function Apps() {
               You have no apps from Arc Forge yet.
             </div>
           ) : (
-            <div className='grid gap-4 md:grid-cols-2'>
+            <div className='grid items-start gap-4 md:grid-cols-2'>
               {apps.map((app) => (
                 <AppCard key={app.id} app={app} />
               ))}
@@ -41,18 +38,17 @@ export function Apps() {
   )
 }
 
+// Name, one plan line and "Open app". Plan facts and other actions stay
+// under "Details".
 function AppCard({ app }: { app: CareApp }) {
   const soon = () => toast('Care plan checkout comes with billing.')
-  const rows: [string, string][] = app.plan
+  const facts: [string, string][] = app.plan
     ? [
-        ['Plan', app.plan.name],
-        ['Renews', day(app.plan.renews)],
         ['Version', app.version],
         ['Requests this month', `${app.plan.requestsThisMonth}`],
         ['Uptime, 30 days', `${app.plan.uptime30d}%`],
       ]
     : [
-        ['Plan', 'None'],
         ['Version', app.version],
         ['Support', 'Pay per request'],
       ]
@@ -65,37 +61,35 @@ function AppCard({ app }: { app: CareApp }) {
         </div>
         <div className='min-w-0'>
           <CardTitle className='truncate'>{app.name}</CardTitle>
-          <CardDescription className='truncate font-mono text-xs'>
-            {new URL(app.url).host}
+          <CardDescription className='truncate'>
+            {app.plan
+              ? `${app.plan.name} · renews ${day(app.plan.renews)}`
+              : 'No care plan'}
           </CardDescription>
         </div>
-        <Badge className='ms-auto' variant={app.plan ? 'default' : 'outline'}>
-          {app.plan ? 'Care plan active' : 'No care plan'}
-        </Badge>
       </CardHeader>
-      <CardContent className='space-y-3'>
-        <dl className='grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm'>
-          {rows.map(([k, v]) => (
-            <div key={k} className='contents'>
-              <dt className='text-muted-foreground'>{k}</dt>
-              <dd className='text-end tabular-nums'>{v}</dd>
-            </div>
-          ))}
-        </dl>
-        {!app.plan && (
-          <p className='rounded-md border border-primary/40 bg-primary/5 p-3 text-sm'>
-            A care plan includes fixes, updates and support requests.
-          </p>
-        )}
+      <CardContent>
+        <More label='Details'>
+          <dl className='grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm'>
+            {facts.map(([k, v]) => (
+              <div key={k} className='contents'>
+                <dt className='text-muted-foreground'>{k}</dt>
+                <dd className='text-end tabular-nums'>{v}</dd>
+              </div>
+            ))}
+          </dl>
+          <div className='mt-3 flex flex-wrap gap-2'>
+            <Button variant='outline' size='sm' onClick={soon}>
+              {app.plan ? 'Change plan' : 'Start a care plan'}
+            </Button>
+            <Button variant='outline' size='sm' asChild>
+              <Link to='/support'>Report a problem</Link>
+            </Button>
+          </div>
+        </More>
       </CardContent>
-      <CardFooter className='mt-auto flex flex-wrap justify-end gap-2'>
-        <Button variant='outline' size='sm' onClick={soon}>
-          {app.plan ? 'Change plan' : 'Start care plan'}
-        </Button>
-        <Button variant='outline' size='sm' asChild>
-          <Link to='/support'>Report a problem</Link>
-        </Button>
-        <Button size='sm' asChild>
+      <CardFooter className='mt-auto'>
+        <Button asChild className='w-full'>
           <a href={app.url} target='_blank' rel='noopener noreferrer'>
             Open app <ExternalLink />
           </a>

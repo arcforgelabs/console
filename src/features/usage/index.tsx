@@ -12,13 +12,7 @@ import {
   useUsage,
 } from '@/lib/console-api'
 import { compact, day, money } from '@/lib/format'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -28,6 +22,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { More } from '@/components/more'
 import { Page, QueryView } from '@/components/page'
 
 export function Usage() {
@@ -36,11 +31,7 @@ export function Usage() {
   return (
     <Page
       title='Usage'
-      description={
-        d
-          ? `${day(d.periodStart)} – ${day(d.periodEnd)} · model use through the included plan.`
-          : 'Model use through the included plan.'
-      }
+      description={d && `${day(d.periodStart)} – ${day(d.periodEnd)}`}
     >
       <QueryView query={query} what='Usage'>
         {(usage) => <UsageView usage={usage} />}
@@ -49,68 +40,41 @@ export function Usage() {
   )
 }
 
+// One number first: how much of the included plan is used. The chart sits
+// under it, and the breakdown stays behind "Breakdown".
 function UsageView({ usage }: { usage: UsageData }) {
   const cur = (n: number) => money(n, usage.currency)
   const { used, limit } = usage.included
   const days = usage.daily.length || 1
   const perDay = usage.daily.reduce((s, x) => s + x.cost, 0) / days
   const pct = Math.min(100, Math.round((used / limit) * 100))
+  const own = usage.ownSubscription
 
   return (
-    <div className='space-y-4'>
-      <div className='grid gap-4 sm:grid-cols-3'>
-        <Card>
-          <CardHeader>
-            <CardDescription>Included plan used</CardDescription>
-            <CardTitle className='text-2xl tabular-nums'>{cur(used)}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div
-              className='h-2 overflow-hidden rounded-full bg-muted'
-              role='meter'
-              aria-label='Included plan used'
-              aria-valuenow={pct}
-              aria-valuemin={0}
-              aria-valuemax={100}
-            >
-              <div className='h-full bg-primary' style={{ width: `${pct}%` }} />
-            </div>
-            <p className='mt-2 text-xs text-muted-foreground'>
-              of {cur(limit)}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Average per day</CardDescription>
-            <CardTitle className='text-2xl tabular-nums'>
-              {cur(perDay)}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='text-xs text-muted-foreground'>
-            Forecast {cur(perDay * 31)} this month
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardDescription>Own subscription</CardDescription>
-            <CardTitle className='text-2xl'>
-              {usage.ownSubscription.connected ? 'Connected' : 'Not connected'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className='text-xs text-muted-foreground'>
-            {usage.ownSubscription.connected
-              ? `${usage.ownSubscription.claws.join(', ')} · cost not shown here`
-              : 'Your claws use the included plan only.'}
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className='text-base'>Cost per day</CardTitle>
-        </CardHeader>
-        <CardContent className='h-56 ps-0'>
+    <Card className='max-w-3xl'>
+      <CardHeader>
+        <CardTitle className='text-3xl tabular-nums'>
+          {cur(used)}{' '}
+          <span className='text-base font-normal text-muted-foreground'>
+            of {cur(limit)} used
+          </span>
+        </CardTitle>
+        <div
+          className='mt-2 h-2 overflow-hidden rounded-full bg-muted'
+          role='meter'
+          aria-label='Included plan used'
+          aria-valuenow={pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div className='h-full bg-primary' style={{ width: `${pct}%` }} />
+        </div>
+        <p className='mt-2 text-sm text-muted-foreground'>
+          About {cur(perDay * 31)} by the end of the month.
+        </p>
+      </CardHeader>
+      <CardContent className='space-y-4'>
+        <div className='h-48'>
           <ResponsiveContainer width='100%' height='100%'>
             <BarChart data={usage.daily}>
               <XAxis
@@ -147,26 +111,34 @@ function UsageView({ usage }: { usage: UsageData }) {
               />
             </BarChart>
           </ResponsiveContainer>
-        </CardContent>
-      </Card>
+        </div>
 
-      <Tabs defaultValue='person'>
-        <TabsList>
-          <TabsTrigger value='person'>Per person</TabsTrigger>
-          <TabsTrigger value='claw'>Per claw</TabsTrigger>
-          <TabsTrigger value='model'>Per model</TabsTrigger>
-        </TabsList>
-        <TabsContent value='person'>
-          <Breakdown head='Person' rows={usage.byPerson} cur={cur} />
-        </TabsContent>
-        <TabsContent value='claw'>
-          <Breakdown head='Claw' rows={usage.byClaw} cur={cur} />
-        </TabsContent>
-        <TabsContent value='model'>
-          <Breakdown head='Model' rows={usage.byModel} cur={cur} />
-        </TabsContent>
-      </Tabs>
-    </div>
+        <More label='Breakdown'>
+          <Tabs defaultValue='person'>
+            <TabsList>
+              <TabsTrigger value='person'>Person</TabsTrigger>
+              <TabsTrigger value='claw'>Claw</TabsTrigger>
+              <TabsTrigger value='model'>Model</TabsTrigger>
+            </TabsList>
+            <TabsContent value='person'>
+              <Breakdown head='Person' rows={usage.byPerson} cur={cur} />
+            </TabsContent>
+            <TabsContent value='claw'>
+              <Breakdown head='Claw' rows={usage.byClaw} cur={cur} />
+            </TabsContent>
+            <TabsContent value='model'>
+              <Breakdown head='Model' rows={usage.byModel} cur={cur} />
+            </TabsContent>
+          </Tabs>
+          {own.connected && (
+            <p className='mt-3 text-xs text-muted-foreground'>
+              {own.claws.join(', ')} also use your own model subscription. That
+              cost is not shown here.
+            </p>
+          )}
+        </More>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -176,7 +148,7 @@ function Breakdown(props: {
   cur: (n: number) => string
 }) {
   return (
-    <div className='overflow-x-auto rounded-xl border'>
+    <div className='overflow-x-auto rounded-lg border'>
       <Table>
         <TableHeader>
           <TableRow>

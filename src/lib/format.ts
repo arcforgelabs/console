@@ -33,6 +33,12 @@ export function ago(iso: string, now = Date.now()) {
   return `${Math.round(h / 24)} d`
 }
 
+// "3 h ago", or "just now".
+export function since(iso: string, now = Date.now()) {
+  const a = ago(iso, now)
+  return a === 'now' ? 'just now' : `${a} ago`
+}
+
 export function initials(name: string) {
   return name
     .split(/\s+/)

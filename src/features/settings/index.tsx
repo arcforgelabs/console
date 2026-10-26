@@ -1,7 +1,6 @@
 import { Outlet } from '@tanstack/react-router'
 import { Palette } from 'lucide-react'
 import { Separator } from '@/components/ui/separator'
-import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -23,7 +22,6 @@ export function Settings() {
       <Header>
         <div className='ms-auto' />
         <ThemeSwitch />
-        <ConfigDrawer />
         <ProfileDropdown />
       </Header>
 
@@ -33,8 +31,7 @@ export function Settings() {
             Settings
           </h1>
           <p className='text-muted-foreground'>
-            How the console looks on this device. Your sign-in and security
-            settings are on your account page.
+            How the console looks on this device.
           </p>
         </div>
         <Separator className='my-4 lg:my-6' />

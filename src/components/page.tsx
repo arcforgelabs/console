@@ -1,7 +1,6 @@
 import { ApiError, demo } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { ConfigDrawer } from '@/components/config-drawer'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { ProfileDropdown } from '@/components/profile-dropdown'
@@ -9,7 +8,7 @@ import { ThemeSwitch } from '@/components/theme-switch'
 
 type PageProps = {
   title: string
-  description: React.ReactNode
+  description?: React.ReactNode
   actions?: React.ReactNode
   children: React.ReactNode
 }
@@ -20,7 +19,6 @@ export function Page({ title, description, actions, children }: PageProps) {
       <Header>
         <div className='ms-auto flex items-center gap-2'>
           <ThemeSwitch />
-          <ConfigDrawer />
           <ProfileDropdown />
         </div>
       </Header>
@@ -31,7 +29,9 @@ export function Page({ title, description, actions, children }: PageProps) {
               {title}
               {demo && <Badge variant='outline'>Demo data</Badge>}
             </h1>
-            <p className='text-muted-foreground'>{description}</p>
+            {description && (
+              <p className='text-muted-foreground'>{description}</p>
+            )}
           </div>
           {actions && <div className='flex gap-2'>{actions}</div>}
         </div>

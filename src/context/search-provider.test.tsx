@@ -119,15 +119,15 @@ describe('SearchProvider and CommandMenu', () => {
       .not.toBeInTheDocument()
   })
 
-  it('navigates to the appearance settings', async () => {
+  it('navigates to a page from the menu', async () => {
     const screen = await renderWithSearchProvider()
     const { getByPlaceholder, getByRole } = screen
 
     await openCommandPalette(screen)
 
-    await userEvent.click(getByRole('option', { name: 'Appearance' }))
+    await userEvent.click(getByRole('option', { name: 'Billing' }))
 
-    expect(mocks.navigate).toHaveBeenCalledWith({ to: '/settings/appearance' })
+    expect(mocks.navigate).toHaveBeenCalledWith({ to: '/billing' })
     await expect
       .element(getByPlaceholder(COMMAND_MENU_PLACEHOLDER))
       .not.toBeInTheDocument()

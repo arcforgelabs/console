@@ -6,36 +6,54 @@ import Template from './Template'
 import { useI18n } from './i18n'
 
 const LoginConfigTotp = lazy(() => import('./pages/LoginConfigTotp'))
+const LoginOtp = lazy(() => import('./pages/LoginOtp'))
+const LoginResetPassword = lazy(() => import('./pages/LoginResetPassword'))
+const LoginVerifyEmail = lazy(() => import('./pages/LoginVerifyEmail'))
+const SelectOrganization = lazy(() => import('./pages/SelectOrganization'))
+const WebauthnRegister = lazy(() => import('./pages/WebauthnRegister'))
 const UserProfileFormFields = lazy(
   () => import('keycloakify/login/UserProfileFormFields')
 )
 
 // Pages use Keycloakify's own page logic (passkeys, organisations and so
-// on) with our Template and these classes. Two-step setup has its own page
-// (pages/LoginConfigTotp.tsx). Keycloak's default CSS is off.
+// on) with our Template and these classes. Pages in pages/ replace
+// Keycloakify's page for the same pageId: one instruction, one action,
+// extras behind a tap. Keycloak's default CSS is off.
 export default function KcPage({ kcContext }: { kcContext: KcContext }) {
   const { i18n } = useI18n({ kcContext })
+  const common = {
+    i18n,
+    classes,
+    Template,
+    doUseDefaultCss: false,
+  }
   return (
     <Suspense>
-      {kcContext.pageId === 'login-config-totp.ftl' ? (
-        <LoginConfigTotp
-          kcContext={kcContext}
-          i18n={i18n}
-          classes={classes}
-          Template={Template}
-          doUseDefaultCss={false}
-        />
-      ) : (
-        <DefaultPage
-          kcContext={kcContext}
-          i18n={i18n}
-          classes={classes}
-          Template={Template}
-          doUseDefaultCss={false}
-          UserProfileFormFields={UserProfileFormFields}
-          doMakeUserConfirmPassword
-        />
-      )}
+      {(() => {
+        switch (kcContext.pageId) {
+          case 'login-config-totp.ftl':
+            return <LoginConfigTotp kcContext={kcContext} {...common} />
+          case 'login-otp.ftl':
+            return <LoginOtp kcContext={kcContext} {...common} />
+          case 'login-reset-password.ftl':
+            return <LoginResetPassword kcContext={kcContext} {...common} />
+          case 'login-verify-email.ftl':
+            return <LoginVerifyEmail kcContext={kcContext} {...common} />
+          case 'select-organization.ftl':
+            return <SelectOrganization kcContext={kcContext} {...common} />
+          case 'webauthn-register.ftl':
+            return <WebauthnRegister kcContext={kcContext} {...common} />
+          default:
+            return (
+              <DefaultPage
+                kcContext={kcContext}
+                {...common}
+                UserProfileFormFields={UserProfileFormFields}
+                doMakeUserConfirmPassword
+              />
+            )
+        }
+      })()}
     </Suspense>
   )
 }

@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -6,25 +5,16 @@ import {
   type SupportState,
   useSupport,
 } from '@/lib/console-api'
-import { ago } from '@/lib/format'
+import { since } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { More } from '@/components/more'
 import { Page, QueryView } from '@/components/page'
 
 const stateLabel: Record<SupportState, string> = {
@@ -40,7 +30,6 @@ export function Support() {
   return (
     <Page
       title='Support'
-      description='Every request from your apps, your claws or this page, in one list.'
       actions={
         <Button
           onClick={() =>
@@ -52,102 +41,62 @@ export function Support() {
       }
     >
       <QueryView query={query} what='The support list'>
-        {(requests) =>
-          requests.length === 0 ? (
-            <div className='rounded-xl border border-dashed p-8 text-center text-muted-foreground'>
-              No support requests yet.
-            </div>
-          ) : (
-            <SupportView requests={requests} />
-          )
-        }
+        {(requests) => <SupportView requests={requests} />}
       </QueryView>
     </Page>
   )
 }
 
+// Open requests first, one line each. A tap shows the progress. Closed
+// requests stay behind "Closed".
 function SupportView({ requests }: { requests: SupportRequest[] }) {
-  const [openId, setOpenId] = useState(requests[0].id)
-  const open = requests.find((r) => r.id === openId) ?? requests[0]
+  const open = requests.filter((r) => r.state !== 'closed')
+  const closed = requests.filter((r) => r.state === 'closed')
 
   return (
-    <div className='grid items-start gap-4 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]'>
-      <div className='overflow-x-auto rounded-xl border'>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Request</TableHead>
-              <TableHead>App</TableHead>
-              <TableHead>State</TableHead>
-              <TableHead className='text-end'>Updated</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.map((r) => (
-              <TableRow
-                key={r.id}
-                data-state={r.id === open.id ? 'selected' : undefined}
-                className='cursor-pointer'
-                onClick={() => setOpenId(r.id)}
-              >
-                <TableCell>
-                  <button
-                    type='button'
-                    className='text-start font-medium hover:underline'
-                    aria-pressed={r.id === open.id}
-                  >
-                    {r.title}
-                  </button>
-                </TableCell>
-                <TableCell className='text-muted-foreground'>{r.app}</TableCell>
-                <TableCell>
-                  <StateBadge request={r} />
-                </TableCell>
-                <TableCell className='text-end text-muted-foreground tabular-nums'>
-                  {ago(r.updated)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      <RequestDetail request={open} />
+    <div className='max-w-3xl space-y-6'>
+      {open.length === 0 ? (
+        <div className='rounded-xl border border-dashed p-8 text-center text-muted-foreground'>
+          No open requests.
+        </div>
+      ) : (
+        <RequestList requests={open} />
+      )}
+      {closed.length > 0 && (
+        <More label={`Closed (${closed.length})`}>
+          <RequestList requests={closed} />
+        </More>
+      )}
     </div>
   )
 }
 
-function StateBadge({ request }: { request: SupportRequest }) {
-  const label =
-    request.state === 'closed' && request.rating
-      ? `Closed · ${request.rating}`
-      : stateLabel[request.state]
+function RequestList({ requests }: { requests: SupportRequest[] }) {
   return (
-    <Badge
-      variant={
-        request.state === 'closed'
-          ? 'outline'
-          : request.state === 'waiting'
-            ? 'default'
-            : 'secondary'
-      }
-    >
-      {label}
-    </Badge>
+    <ul className='divide-y rounded-xl border'>
+      {requests.map((r) => (
+        <li key={r.id}>
+          <RequestRow request={r} />
+        </li>
+      ))}
+    </ul>
   )
 }
 
-function RequestDetail({ request }: { request: SupportRequest }) {
+function RequestRow({ request }: { request: SupportRequest }) {
   const current = request.steps.findIndex((s) => !s.at)
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className='text-base'>{request.title}</CardTitle>
-        <CardDescription>
-          {request.app} · reported by {request.reporter}
-          {request.inCarePlan ? ' · in your care plan' : ''}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Collapsible>
+      <CollapsibleTrigger className='flex w-full cursor-pointer items-center gap-3 px-4 py-3 text-start outline-none hover:bg-muted/50 focus-visible:ring-[3px] focus-visible:ring-ring/50'>
+        <div className='min-w-0 flex-1'>
+          <div className='truncate font-medium'>{request.title}</div>
+          <div className='truncate text-xs text-muted-foreground'>
+            {request.app} · {since(request.updated)}
+          </div>
+        </div>
+        <StateBadge request={request} />
+      </CollapsibleTrigger>
+      <CollapsibleContent className='px-4 pb-4'>
         <ol className='space-y-3 border-s ps-4'>
           {request.steps.map((s, i) => (
             <li key={s.label} className='relative'>
@@ -167,32 +116,42 @@ function RequestDetail({ request }: { request: SupportRequest }) {
               >
                 {s.label}
               </div>
-              <div className='text-xs text-muted-foreground'>
-                {[
-                  s.at &&
-                    new Date(s.at).toLocaleString('en-AU', {
-                      weekday: 'short',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                    }),
-                  s.note,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </div>
+              {s.note && (
+                <div className='text-xs text-muted-foreground'>{s.note}</div>
+              )}
             </li>
           ))}
         </ol>
-        <div className='mt-4 flex justify-end'>
-          <Button
-            variant='outline'
-            size='sm'
-            onClick={() => toast('Notes come with the support connection.')}
-          >
-            Add a note
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+        <Button
+          variant='outline'
+          size='sm'
+          className='mt-4'
+          onClick={() => toast('Notes come with the support connection.')}
+        >
+          Add a note
+        </Button>
+      </CollapsibleContent>
+    </Collapsible>
+  )
+}
+
+function StateBadge({ request }: { request: SupportRequest }) {
+  const label =
+    request.state === 'closed' && request.rating
+      ? `Closed · ${request.rating}`
+      : stateLabel[request.state]
+  return (
+    <Badge
+      className='shrink-0'
+      variant={
+        request.state === 'closed'
+          ? 'outline'
+          : request.state === 'waiting'
+            ? 'default'
+            : 'secondary'
+      }
+    >
+      {label}
+    </Badge>
   )
 }
