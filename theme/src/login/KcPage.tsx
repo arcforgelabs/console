@@ -5,26 +5,37 @@ import type { KcContext } from './KcContext'
 import Template from './Template'
 import { useI18n } from './i18n'
 
+const LoginConfigTotp = lazy(() => import('./pages/LoginConfigTotp'))
 const UserProfileFormFields = lazy(
   () => import('keycloakify/login/UserProfileFormFields')
 )
 
-// Every page uses Keycloakify's own page logic (passkeys, organisations,
-// two-step setup and so on) with our Template and these classes. Keycloak's
-// default CSS is off.
+// Pages use Keycloakify's own page logic (passkeys, organisations and so
+// on) with our Template and these classes. Two-step setup has its own page
+// (pages/LoginConfigTotp.tsx). Keycloak's default CSS is off.
 export default function KcPage({ kcContext }: { kcContext: KcContext }) {
   const { i18n } = useI18n({ kcContext })
   return (
     <Suspense>
-      <DefaultPage
-        kcContext={kcContext}
-        i18n={i18n}
-        classes={classes}
-        Template={Template}
-        doUseDefaultCss={false}
-        UserProfileFormFields={UserProfileFormFields}
-        doMakeUserConfirmPassword
-      />
+      {kcContext.pageId === 'login-config-totp.ftl' ? (
+        <LoginConfigTotp
+          kcContext={kcContext}
+          i18n={i18n}
+          classes={classes}
+          Template={Template}
+          doUseDefaultCss={false}
+        />
+      ) : (
+        <DefaultPage
+          kcContext={kcContext}
+          i18n={i18n}
+          classes={classes}
+          Template={Template}
+          doUseDefaultCss={false}
+          UserProfileFormFields={UserProfileFormFields}
+          doMakeUserConfirmPassword
+        />
+      )}
     </Suspense>
   )
 }

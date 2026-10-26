@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { kcSanitize } from 'keycloakify/lib/kcSanitize'
 import { useInitialize } from 'keycloakify/login/Template.useInitialize'
 import type { TemplateProps } from 'keycloakify/login/TemplateProps'
+import { ArcForgeMark } from '../../../src/components/arc-forge-mark'
 import type { KcContext } from './KcContext'
 import type { I18n } from './i18n'
 
@@ -48,9 +49,7 @@ export default function Template(props: TemplateProps<KcContext, I18n>) {
         className='mb-8 flex items-center gap-2.5 font-semibold tracking-tight'
         aria-label='Arc Forge'
       >
-        <span className='flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground'>
-          A
-        </span>
+        <ArcForgeMark aria-hidden className='size-8' />
         Arc Forge
       </a>
 
