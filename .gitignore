@@ -42,3 +42,4 @@ dist-worker
 theme/dist
 theme/dist_keycloak
 theme/public/keycloakify-dev-resources
+*.tsbuildinfo
