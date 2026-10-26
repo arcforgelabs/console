@@ -1,0 +1,22 @@
+// Local development only (npm run dev:worker) and the release bundle
+// (npm run build:worker). Production is deployed by the private
+// arcforgelabs/platform repo (stack tofu/console), which sets the real
+// values. Nothing here is a secret.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "arcforge-console",
+  "main": "worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [{ "binding": "CLAWS", "id": "local-dev-only" }],
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "",
+    "ACCESS_AUD": "",
+    "ACCOUNTS_URL": ""
+  }
+}
