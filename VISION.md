@@ -6,7 +6,7 @@ billing.
 
 Rules:
 
-- Sign in once. Cloudflare Access plus Zitadel cover the console and every claw.
+- Sign in once. Cloudflare Access plus self-hosted Keycloak cover the console and every claw.
 - shadcn/ui quality or better. Start from open source parts; do not invent.
 - The code is public. Secrets, customer data and deploy config stay in the
   private platform repo.
