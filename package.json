@@ -98,7 +98,7 @@
   "description": "Arc Forge customer console: claws, care plans, support, seats, usage and billing.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/arcforgelabs/portal.git"
+    "url": "git+https://github.com/arcforgelabs/console.git"
   },
   "packageManager": "pnpm@10.28.0"
 }
