@@ -4,18 +4,18 @@ The customer console for Arc Forge. A customer signs in once and sees every
 claw (OpenClaw gateway) they can use, as cards.
 
 Address: `console.arcforge.au`. Account pages live at `accounts.arcforge.au`
-(the Zitadel sign-in service).
+(the self-hosted Keycloak sign-in service).
 
 ## How sign-in works
 
 ```
 browser ──► Cloudflare Access ──► console Worker (this repo)
-               │  (Zitadel is the sign-in provider)
+               │  (Keycloak is the sign-in provider)
                └─ one Access session also opens each claw
 ```
 
 1. Cloudflare Access sits in front of the console and every claw.
-2. Access signs the person in with Zitadel. The Access session is shared, so
+2. Access signs the person in with Keycloak. The Access session is shared, so
    the person signs in once.
 3. The Worker checks the `Cf-Access-Jwt-Assertion` token (issuer, audience,
    RS256 key from `<team>/cdn-cgi/access/certs`) on every `/api/*` call.
