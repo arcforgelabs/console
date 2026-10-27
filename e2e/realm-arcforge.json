@@ -26,6 +26,8 @@
   "webAuthnPolicyPasswordlessRpId": "localhost",
   "webAuthnPolicyPasswordlessUserVerificationRequirement": "required",
   "webAuthnPolicyPasswordlessPasskeysEnabled": true,
+  "webAuthnPolicyPasswordlessRequireResidentKey": "Yes",
+  "webAuthnPolicyPasswordlessAvoidSameAuthenticatorRegister": true,
   "requiredActions": [
     {
       "alias": "CONFIGURE_TOTP",
