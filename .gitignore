@@ -48,3 +48,4 @@ theme/public/keycloakify-dev-resources
 dist-e2e
 e2e/results
 e2e/report
+.crabbox/
