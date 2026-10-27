@@ -2,8 +2,9 @@
 
 A real Keycloak 26.8.1 with the `arcforge` theme from this commit signs a new
 person in, then lands them on the console demo build. It covers password,
-one-time code set-up and sign-in, recovery codes, and passkeys (through
-Chromium's virtual authenticator), at desktop and phone width.
+one-time code set-up and sign-in, recovery codes, passkeys on two devices
+(through Chromium's virtual authenticator), and account steps an app asks
+for (Cancel, the email check), at desktop and phone width.
 
 This is the release tier of the proof standard (Rule 6). It runs before every
 release (`release.yml` calls `sign-in-test.yml`) and by hand from the Actions
@@ -16,7 +17,8 @@ tab. Pull request checks do not run it.
 policy, brute-force limits, organisations, required actions (one-time code by
 default, passkey, recovery codes) and passkey settings. Differences:
 
-- No SMTP server, and email check off: the test has no mail catcher.
+- No SMTP server, and email check off at sign-in: the test has no mail
+  catcher. The email check stays on as an action an app can ask for.
 - `sslRequired` is `none` and the passkey relying party is `localhost`.
 - A public `console` client with a `localhost:4173` redirect stands in for
   Cloudflare Access, which the test cannot run.

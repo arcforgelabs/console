@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from 'node:crypto'
+import { type Browser, type Page, expect, test } from '@playwright/test'
 
 // Test helpers for a throwaway Keycloak. The admin password is a local test
 // value set when the test container starts, never a real credential.
@@ -91,15 +92,18 @@ export async function useArcforgeBrowserFlow() {
 export type TestUser = { username: string; password: string }
 
 // A new person for each test, as Arc Forge makes them: no self sign-up.
-export async function createUser(requiredActions: string[]): Promise<TestUser> {
+export async function createUser(
+  requiredActions: string[],
+  { emailVerified = true } = {}
+): Promise<TestUser> {
   const username = `e2e-${randomUUID().slice(0, 8)}`
   const password = `pw-${randomUUID()}`
-  await admin('/users', {
+  const res = await admin('/users', {
     method: 'POST',
     body: JSON.stringify({
       username,
       email: `${username}@example.test`,
-      emailVerified: true,
+      emailVerified,
       firstName: 'Test',
       lastName: 'Person',
       enabled: true,
@@ -107,12 +111,31 @@ export async function createUser(requiredActions: string[]): Promise<TestUser> {
       credentials: [{ type: 'password', value: password, temporary: false }],
     }),
   })
+  // Keycloak adds the realm's default actions (the one-time code set-up) to
+  // a new person. Set exactly the actions this test asks for.
+  const id = res.headers.get('location')?.split('/').pop()
+  await admin(`/users/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({ requiredActions }),
+  })
   return { username, password }
 }
 
+// The person's credentials of one type (for example webauthn-passwordless).
+export async function credentials(username: string, type: string) {
+  const [user] = (await (
+    await admin(`/users?exact=true&username=${username}`)
+  ).json()) as { id: string }[]
+  const all = (await (
+    await admin(`/users/${user.id}/credentials`)
+  ).json()) as { type: string; userLabel?: string }[]
+  return all.filter((c) => c.type === type)
+}
+
 // The console's sign-in request, as the console client in tofu/keycloak
-// makes it (authorisation code with PKCE).
-export function signInUrl() {
+// makes it (authorisation code with PKCE). kcAction asks Keycloak for one
+// account step after sign-in, as an app does (application-initiated action).
+export function signInUrl(kcAction?: string) {
   const q = new URLSearchParams({
     client_id: 'console',
     response_type: 'code',
@@ -121,7 +144,40 @@ export function signInUrl() {
     code_challenge: 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM',
     code_challenge_method: 'S256',
   })
+  if (kcAction) q.set('kc_action', kcAction)
   return `${KC}/realms/arcforge/protocol/openid-connect/auth?${q}`
+}
+
+// The sign-in ended on the console with a one-time code and no error:
+// proof that Keycloak signed the person in for the console client, not only
+// that the demo page loaded.
+export async function expectConsole(page: Page) {
+  await page.waitForURL((u) => u.href.startsWith(CONSOLE))
+  await expect(page.getByRole('heading', { name: /^Claws/ })).toBeVisible()
+  const params = new URL(page.url()).searchParams
+  expect(params.get('error')).toBeNull()
+  expect(params.get('code')).toBeTruthy()
+}
+
+export async function password(
+  page: Page,
+  username: string,
+  pw: string,
+  kcAction?: string
+) {
+  await page.goto(signInUrl(kcAction))
+  await expect(
+    page.getByRole('heading', { name: 'Sign in to Arc Forge' })
+  ).toBeVisible()
+  await page.getByLabel('Username or email').fill(username)
+  await page.getByLabel('Password', { exact: true }).fill(pw)
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+}
+
+// A new browser with no cookies: the person has signed out.
+export async function freshPage(browser: Browser) {
+  const context = await browser.newContext(test.info().project.use)
+  return context.newPage()
 }
 
 function base32(s: string) {

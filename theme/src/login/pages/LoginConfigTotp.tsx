@@ -10,6 +10,17 @@ type Props = PageProps<
   I18n
 >
 
+// The QR code carries the app settings; a typed key does not, so the
+// disclosure names them too.
+function policyLine(policy: Props['kcContext']['totp']['policy']) {
+  const kind =
+    policy.type === 'totp'
+      ? `Time-based, every ${policy.period} s`
+      : `Counter-based, from ${policy.initialCounter}`
+  const algorithm = policy.algorithm.replace('Hmac', '')
+  return `${kind} · ${algorithm} · ${policy.digits} digits`
+}
+
 // One instruction, the QR code and the code box. The setup key stays behind
 // "Can't scan?". Same form fields as Keycloak's page (totp, totpSecret,
 // userLabel), so the server side does not change.
@@ -78,6 +89,12 @@ export default function LoginConfigTotp(props: Props) {
             {copied ? 'Copied' : 'Copy'}
           </button>
         </div>
+        <p
+          id='kc-totp-policy'
+          className='mt-2 text-center text-xs text-muted-foreground'
+        >
+          {policyLine(totp.policy)}
+        </p>
       </details>
 
       <form
@@ -165,6 +182,7 @@ export default function LoginConfigTotp(props: Props) {
               id='cancelTOTPBtn'
               name='cancel-aia'
               value='true'
+              formNoValidate
               className={secondaryButton}
             >
               {msgStr('doCancel')}

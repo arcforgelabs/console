@@ -1,5 +1,4 @@
 import type { PageProps } from 'keycloakify/login/pages/PageProps'
-import { useScript } from 'keycloakify/login/pages/WebauthnRegister.useScript'
 import type { KcContext } from '../KcContext'
 import type { I18n } from '../i18n'
 import { primaryButton, quietLink } from '../ui'
@@ -11,13 +10,53 @@ type Props = PageProps<
 
 const authButtonId = 'authenticateWebAuthnButton'
 
+// A name no other passkey of this person has: Keycloak refuses a second
+// passkey with the same name.
+function passkeyName(now = new Date()) {
+  return `Passkey ${now.toLocaleString('en-AU', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  })}`
+}
+
+// Keycloak's own registerByWebAuthn (as Keycloakify's useScript calls it),
+// but with a unique name. Its script asks for the name with window.prompt;
+// this page answers with that name, so the person sees only the passkey
+// prompt from the browser.
+async function register(kcContext: Props['kcContext'], errmsg: string) {
+  const src = `${kcContext.url.resourcesPath}/js/webauthnRegister.js`
+  const { registerByWebAuthn } = await import(/* @vite-ignore */ src)
+  const label = passkeyName()
+  window.prompt = () => label
+  registerByWebAuthn({
+    challenge: kcContext.challenge,
+    userid: kcContext.userid,
+    username: kcContext.username,
+    signatureAlgorithms: kcContext.signatureAlgorithms,
+    rpEntityName: kcContext.rpEntityName,
+    rpId: kcContext.rpId,
+    attestationConveyancePreference: kcContext.attestationConveyancePreference,
+    authenticatorAttachment: kcContext.authenticatorAttachment,
+    requireResidentKey: kcContext.requireResidentKey,
+    residentKey: kcContext.residentKey,
+    userVerificationRequirement: kcContext.userVerificationRequirement,
+    createTimeout: kcContext.createTimeout,
+    excludeCredentialIds: kcContext.excludeCredentialIds,
+    initLabel: label,
+    initLabelPrompt: '',
+    errmsg,
+  })
+}
+
 // One line and one button. The browser shows the passkey prompt.
 export default function WebauthnRegister(props: Props) {
   const { kcContext, i18n, doUseDefaultCss, Template, classes } = props
   const { url, isSetRetry, isAppInitiatedAction } = kcContext
   const { msgStr } = i18n
-
-  useScript({ authButtonId, kcContext, i18n })
 
   return (
     <Template
@@ -51,7 +90,14 @@ export default function WebauthnRegister(props: Props) {
         />
         <input type='hidden' id='error' name='error' />
       </form>
-      <button type='button' id={authButtonId} className={primaryButton}>
+      <button
+        type='button'
+        id={authButtonId}
+        className={primaryButton}
+        onClick={() =>
+          register(kcContext, msgStr('webauthn-unsupported-browser-text'))
+        }
+      >
         Add a passkey
       </button>
 

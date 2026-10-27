@@ -6,8 +6,10 @@ export type KcContextExtension = {
   properties: Record<KcEnvName, string>
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export type KcContextExtensionPerPage = {}
+export type KcContextExtensionPerPage = {
+  // Keycloak sets it once the email is sent (login-verify-email.ftl).
+  'login-verify-email.ftl': { verifyEmail?: string }
+}
 
 export type KcContext = ExtendKcContext<
   KcContextExtension,

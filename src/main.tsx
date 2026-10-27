@@ -11,6 +11,7 @@ import '@fontsource-variable/geist'
 import '@fontsource-variable/jetbrains-mono'
 import { toast } from 'sonner'
 import { ApiError } from '@/lib/api'
+import { onSignedIn, onSignedOut } from '@/lib/session'
 import { DirectionProvider } from './context/direction-provider'
 import { FontProvider } from './context/font-provider'
 import { ThemeProvider } from './context/theme-provider'
@@ -30,12 +31,17 @@ const queryClient = new QueryClient({
     },
   },
   queryCache: new QueryCache({
+    onSuccess: () => onSignedIn(sessionStorage),
     onError: (error) => {
       if (error instanceof ApiError && error.status === 401) {
-        // The Access session ended. A reload sends the browser through
-        // Cloudflare Access, which signs the person in again.
-        toast.error('Your session ended. Signing you in again.')
-        window.location.reload()
+        onSignedOut({
+          storage: sessionStorage,
+          reload: () => {
+            toast.error('Your session ended. Signing you in again.')
+            window.location.reload()
+          },
+          showSignedOut: () => router.navigate({ to: '/401' }),
+        })
       }
     },
   }),

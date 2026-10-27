@@ -1,10 +1,11 @@
-import { type Browser, type Page, expect, test } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 import {
-  CONSOLE,
-  useArcforgeBrowserFlow,
   createUser,
-  signInUrl,
+  expectConsole,
+  freshPage,
+  password,
   totp,
+  useArcforgeBrowserFlow,
 } from './keycloak'
 
 // One person's whole sign-in life on the real Keycloak with the arcforge
@@ -12,30 +13,6 @@ import {
 // recovery code. Each sign-in must end on the console.
 
 test.beforeAll(useArcforgeBrowserFlow)
-
-async function password(page: Page, username: string, pw: string) {
-  await page.goto(signInUrl())
-  await expect(
-    page.getByRole('heading', { name: 'Sign in to Arc Forge' })
-  ).toBeVisible()
-  await page.getByLabel('Username or email').fill(username)
-  await page.getByLabel('Password', { exact: true }).fill(pw)
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
-}
-
-async function expectConsole(page: Page) {
-  await page.waitForURL((u) => u.href.startsWith(CONSOLE))
-  await expect(page.getByRole('heading', { name: /^Claws/ })).toBeVisible()
-  // The redirect brings a one-time code: proof that Keycloak signed the
-  // person in for the console client, not only that the page loaded.
-  expect(new URL(page.url()).searchParams.get('code')).toBeTruthy()
-}
-
-// A new browser with no cookies: the person has signed out.
-async function freshPage(browser: Browser) {
-  const context = await browser.newContext(test.info().project.use)
-  return context.newPage()
-}
 
 test('set up, sign in with a code, sign in with a recovery code', async ({
   page,
@@ -65,6 +42,10 @@ test('set up, sign in with a code, sign in with a recovery code', async ({
 
     await page.getByText("Can't scan? Use a setup key").click()
     key = (await page.locator('#kc-totp-secret-key').innerText()).trim()
+    // A typed key needs the app settings that the QR code carries.
+    await expect(page.locator('#kc-totp-policy')).toHaveText(
+      'Time-based, every 30 s · SHA1 · 6 digits'
+    )
     await page.getByLabel('Code from the app').fill(totp(key))
     await page.getByRole('button', { name: 'Verify' }).click()
   })
