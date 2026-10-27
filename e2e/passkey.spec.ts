@@ -95,7 +95,8 @@ test('add a passkey, sign in with it, add a second one', async ({
       .getByLabel('Code from your authenticator app')
       .fill(totp(key, Date.now() + 30_000))
     await p.getByRole('button', { name: 'Sign in', exact: true }).click()
-    await p.getByRole('button', { name: 'Add a passkey' }).click()
+    // A double click must still add one passkey, not post an error.
+    await p.getByRole('button', { name: 'Add a passkey' }).dblclick()
     await expectConsole(p)
     // Each passkey has its own name, or Keycloak refuses the second one.
     const keys = await credentials(user.username, 'webauthn-passwordless')

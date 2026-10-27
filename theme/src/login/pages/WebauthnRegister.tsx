@@ -26,8 +26,12 @@ function passkeyName(now = new Date()) {
 // Keycloak's own registerByWebAuthn (as Keycloakify's useScript calls it),
 // but with a unique name. Its script asks for the name with window.prompt;
 // this page answers with that name, so the person sees only the passkey
-// prompt from the browser.
+// prompt from the browser. One attempt per page: a second click while the
+// first runs would make Keycloak's script post an error and leave the page.
+let started = false
 async function register(kcContext: Props['kcContext'], errmsg: string) {
+  if (started) return
+  started = true
   const src = `${kcContext.url.resourcesPath}/js/webauthnRegister.js`
   const { registerByWebAuthn } = await import(/* @vite-ignore */ src)
   const label = passkeyName()
