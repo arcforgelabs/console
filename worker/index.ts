@@ -55,10 +55,34 @@ export async function handleApi(
   }
 }
 
+// Every response: only our own scripts, no framing, no referrer to the
+// claws a person opens. Styles allow inline, for the style tags the UI
+// library adds.
+const security = {
+  'content-security-policy': [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self' data:",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+  ].join('; '),
+  'x-frame-options': 'DENY',
+  'referrer-policy': 'no-referrer',
+  'x-content-type-options': 'nosniff',
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
-    if (url.pathname.startsWith('/api/')) return handleApi(request, env)
-    return env.ASSETS.fetch(request)
+    const res = url.pathname.startsWith('/api/')
+      ? await handleApi(request, env)
+      : await env.ASSETS.fetch(request)
+    const out = new Response(res.body, res)
+    for (const [k, v] of Object.entries(security)) out.headers.set(k, v)
+    return out
   },
 } satisfies ExportedHandler<Env>

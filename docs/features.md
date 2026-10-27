@@ -38,6 +38,7 @@ The sign-in tests run on a real Keycloak 26.8.1 with a realm that copies
 | Feature                                | Page and route                  | Data route (Worker)            | Owner test                                         | State |
 | -------------------------------------- | ------------------------------- | ------------------------------ | -------------------------------------------------- | ----- |
 | Only signed-in people get data         | every `/api/*`                  | Access token check             | `worker/access.test.ts`, `worker/index.test.ts`    | Live  |
+| Pages block framing and outside scripts | every path                     | Security headers (CSP)         | `worker/index.test.ts`                             | Live  |
 | See and open my claws                  | Claws, `/`                      | `/api/me/claws` (KV `claws`)   | `worker/claws.test.ts`, `src/features/claws/index.test.tsx` | Live  |
 | See my apps and care plans             | Apps, `/apps`                   | `/api/apps` (Stripe)           | `src/features/apps/index.test.tsx`                 | Demo  |
 | Start or change a care plan            | Apps, `/apps` → Details         | Stripe checkout                | none                                               | Planned |

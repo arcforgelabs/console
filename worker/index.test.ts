@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { AccessError } from './access'
-import { handleApi, type Env } from './index'
+import worker, { handleApi, type Env } from './index'
 
 const kv = (value: string | null) =>
   ({ get: async () => value }) as unknown as KVNamespace
@@ -65,5 +65,25 @@ describe('handleApi', () => {
   it('answers 404 for an unknown route', async () => {
     const res = await handleApi(get('/api/nope'), env(), { verify: signedIn })
     expect(res.status).toBe(404)
+  })
+})
+
+describe('fetch', () => {
+  // A page from the asset store, as Cloudflare sends it: immutable headers.
+  const assets = {
+    fetch: async () => Response.redirect('https://console.example/', 302),
+  } as unknown as Fetcher
+  const page = async () => {
+    const res = await worker.fetch(get('/claws'), { ...env(), ASSETS: assets })
+    return res.headers
+  }
+
+  it('sends pages with headers that stop framing, outside scripts and referrers', async () => {
+    const h = await page()
+    expect(h.get('content-security-policy')).toContain("script-src 'self'")
+    expect(h.get('content-security-policy')).toContain("frame-ancestors 'none'")
+    expect(h.get('x-frame-options')).toBe('DENY')
+    expect(h.get('referrer-policy')).toBe('no-referrer')
+    expect(h.get('x-content-type-options')).toBe('nosniff')
   })
 })
