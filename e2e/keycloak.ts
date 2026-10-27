@@ -41,13 +41,15 @@ type Execution = {
   providerId?: string
   requirement: string
   level: number
+  authenticationConfig?: string
 }
 
 // tofu/keycloak (platform PR #171) binds its own "arcforge browser" flow: a
 // copy of the built-in browser flow where the second step offers the
-// one-time code, a passkey and a recovery code, each as an alternative. A
-// realm import cannot copy a built-in flow, so the test makes the same flow
-// through the admin API and binds it.
+// one-time code, a passkey and a recovery code, each as an alternative. The
+// second step starts with a credential check (passkey not used), so a passkey
+// sign-in skips it. A realm import cannot copy a built-in flow, so the test
+// makes the same flow through the admin API and binds it.
 export async function useArcforgeBrowserFlow() {
   const name = 'arcforge browser'
   const flows = (await (await admin('/authentication/flows')).json()) as {
@@ -73,6 +75,16 @@ export async function useArcforgeBrowserFlow() {
       body: JSON.stringify({ ...e, requirement: 'ALTERNATIVE' }),
     })
   }
+  const check = all.find((e) => e.providerId === 'conditional-credential')
+  if (!check?.authenticationConfig)
+    throw new Error('second step has no credential check')
+  await admin(`/authentication/config/${check.authenticationConfig}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      alias: 'arcforge-not-passkey',
+      config: { credentials: 'webauthn-passwordless', included: 'false' },
+    }),
+  })
   await admin('', { method: 'PUT', body: JSON.stringify({ browserFlow: name }) })
 }
 
