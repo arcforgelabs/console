@@ -6,9 +6,6 @@ name: Sign-in test
 # Pull request checks do not run it. No secret: the admin password is a
 # throwaway value for this runner only.
 on:
-  # TEMPORARY: proves the workflow on GitHub before merge; removed before merge.
-  push:
-    branches: [claude/project-thread-1q7suc]
   workflow_dispatch:
   workflow_call:
 
