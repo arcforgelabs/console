@@ -9,7 +9,9 @@ const kcContextExtension: KcContextExtension = {
   themeName: themeNames[0],
   properties: { ...kcEnvDefaults },
 }
-const kcContextExtensionPerPage: KcContextExtensionPerPage = {}
+const kcContextExtensionPerPage: KcContextExtensionPerPage = {
+  'login-verify-email.ftl': { verifyEmail: 'jordan@acme.example' },
+}
 
 const noSignUp = {
   registrationAllowed: false,
