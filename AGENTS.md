@@ -10,4 +10,9 @@ Read `VISION.md` and `README.md` first.
   audience tags. Use synthetic data (`VITE_DEMO=1`) in tests and screenshots.
 - Run lint, format check, worker tests, UI tests and both builds before a push.
 - Never call the product "deck". Use console and accounts.
+- Before you write or change code or tests, read the Arc Forge proof
+  standard: https://github.com/arcforgelabs/platform/blob/main/docs/proof-standard.md
+  (platform#262). Every test passes the value gate. A fix brings a test that is
+  red on the base and green with the fix. Evidence shows the real flow with
+  `VITE_DEMO=1`.
 - Design rules: `DESIGN.md`.
