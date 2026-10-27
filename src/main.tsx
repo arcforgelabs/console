@@ -22,8 +22,9 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: (failureCount, error) =>
-        !(error instanceof ApiError && [401, 403].includes(error.status)) &&
-        failureCount < 3,
+        !(
+          error instanceof ApiError && [401, 403, 404].includes(error.status)
+        ) && failureCount < 3,
       refetchOnWindowFocus: import.meta.env.PROD,
       staleTime: 10 * 1000, // 10s
     },

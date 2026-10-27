@@ -1,18 +1,30 @@
-import { Boxes, Palette } from 'lucide-react'
+import {
+  AppWindow,
+  BarChart3,
+  Boxes,
+  CreditCard,
+  LifeBuoy,
+  Users,
+} from 'lucide-react'
 import { type SidebarData } from '../types'
 
-// Later pages (apps and care, support, team, usage, billing) join here as
-// they are built. Design: arcforgelabs/platform#172.
+// Design: arcforgelabs/platform#172.
 export const sidebarData: SidebarData = {
   navGroups: [
     {
       title: 'Run',
-      items: [{ title: 'Claws', url: '/', icon: Boxes }],
+      items: [
+        { title: 'Claws', url: '/', icon: Boxes },
+        { title: 'Apps', url: '/apps', icon: AppWindow },
+        { title: 'Support', url: '/support', icon: LifeBuoy },
+      ],
     },
     {
       title: 'Manage',
       items: [
-        { title: 'Appearance', url: '/settings/appearance', icon: Palette },
+        { title: 'Team', url: '/team', icon: Users },
+        { title: 'Usage', url: '/usage', icon: BarChart3 },
+        { title: 'Billing', url: '/billing', icon: CreditCard },
       ],
     },
   ],

@@ -7,7 +7,17 @@ import { defineConfig } from 'eslint/config'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig(
-  { ignores: ['dist', 'dist-worker', '.wrangler', 'src/components/ui'] },
+  {
+    ignores: [
+      'theme/public/keycloakify-dev-resources',
+      'theme/dist',
+      'theme/dist_keycloak',
+      'dist',
+      'dist-worker',
+      '.wrangler',
+      'src/components/ui',
+    ],
+  },
   {
     extends: [
       js.configs.recommended,

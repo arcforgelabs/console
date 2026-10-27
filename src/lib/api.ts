@@ -47,7 +47,7 @@ const demoClaws: Claw[] = [
   },
 ]
 
-async function getJson<T>(path: string): Promise<T> {
+export async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(path, {
     credentials: 'same-origin',
     headers: { accept: 'application/json' },

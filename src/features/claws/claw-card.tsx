@@ -1,26 +1,19 @@
 import { ExternalLink } from 'lucide-react'
 import { type Claw } from '@/lib/api'
-import { Badge } from '@/components/ui/badge'
+import { initials } from '@/lib/format'
+import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
   Card,
-  CardContent,
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
 
-function initials(label: string) {
-  return label
-    .split(/\s+/)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? '')
-    .join('')
-}
-
+// Name, address, a status dot and one button.
 export function ClawCard({ claw }: { claw: Claw }) {
-  const host = new URL(claw.url).host
+  const online = claw.status === 'online'
   return (
     <Card className='gap-4'>
       <CardHeader className='flex flex-row items-center gap-3'>
@@ -30,20 +23,27 @@ export function ClawCard({ claw }: { claw: Claw }) {
         <div className='min-w-0'>
           <CardTitle className='truncate'>{claw.label}</CardTitle>
           <CardDescription className='truncate font-mono text-xs'>
-            {host}
+            {new URL(claw.url).host}
           </CardDescription>
         </div>
-      </CardHeader>
-      <CardContent className='flex flex-wrap items-center gap-2 text-sm'>
-        <Badge variant='secondary' className='capitalize'>
-          {claw.status ?? 'status not reported'}
-        </Badge>
-        {claw.version && (
-          <span className='text-muted-foreground'>Version {claw.version}</span>
+        {claw.status && (
+          <span
+            className='ms-auto flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground capitalize'
+            title={claw.version ? `Version ${claw.version}` : undefined}
+          >
+            <span
+              aria-hidden
+              className={cn(
+                'size-2 rounded-full',
+                online ? 'bg-emerald-500' : 'bg-amber-500'
+              )}
+            />
+            {claw.status}
+          </span>
         )}
-      </CardContent>
-      <CardFooter className='mt-auto justify-end'>
-        <Button asChild size='sm'>
+      </CardHeader>
+      <CardFooter className='mt-auto'>
+        <Button asChild className='w-full'>
           <a href={claw.url} target='_blank' rel='noopener noreferrer'>
             Open <ExternalLink />
           </a>

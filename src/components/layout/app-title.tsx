@@ -7,6 +7,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
+import { ArcForgeMark } from '../arc-forge-mark'
 import { Button } from '../ui/button'
 
 export function AppTitle() {
@@ -23,11 +24,14 @@ export function AppTitle() {
             <Link
               to='/'
               onClick={() => setOpenMobile(false)}
-              className='grid flex-1 text-start text-sm leading-tight'
+              className='flex flex-1 items-center gap-2.5 text-start text-sm leading-tight'
             >
-              <span className='truncate font-bold'>Arc Forge</span>
-              <span className='truncate text-xs text-muted-foreground'>
-                Console
+              <ArcForgeMark aria-hidden className='size-7 shrink-0' />
+              <span className='grid'>
+                <span className='truncate font-bold'>Arc Forge</span>
+                <span className='truncate text-xs text-muted-foreground'>
+                  Console
+                </span>
               </span>
             </Link>
             <ToggleSidebar />
