@@ -7,8 +7,15 @@ import { useI18n } from './i18n'
 
 const LoginConfigTotp = lazy(() => import('./pages/LoginConfigTotp'))
 const LoginOtp = lazy(() => import('./pages/LoginOtp'))
+const LoginRecoveryAuthnCodeConfig = lazy(
+  () => import('./pages/LoginRecoveryAuthnCodeConfig')
+)
+const LoginRecoveryAuthnCodeInput = lazy(
+  () => import('./pages/LoginRecoveryAuthnCodeInput')
+)
 const LoginResetPassword = lazy(() => import('./pages/LoginResetPassword'))
 const LoginVerifyEmail = lazy(() => import('./pages/LoginVerifyEmail'))
+const SelectAuthenticator = lazy(() => import('./pages/SelectAuthenticator'))
 const SelectOrganization = lazy(() => import('./pages/SelectOrganization'))
 const WebauthnRegister = lazy(() => import('./pages/WebauthnRegister'))
 const UserProfileFormFields = lazy(
@@ -35,10 +42,20 @@ export default function KcPage({ kcContext }: { kcContext: KcContext }) {
             return <LoginConfigTotp kcContext={kcContext} {...common} />
           case 'login-otp.ftl':
             return <LoginOtp kcContext={kcContext} {...common} />
+          case 'login-recovery-authn-code-config.ftl':
+            return (
+              <LoginRecoveryAuthnCodeConfig kcContext={kcContext} {...common} />
+            )
+          case 'login-recovery-authn-code-input.ftl':
+            return (
+              <LoginRecoveryAuthnCodeInput kcContext={kcContext} {...common} />
+            )
           case 'login-reset-password.ftl':
             return <LoginResetPassword kcContext={kcContext} {...common} />
           case 'login-verify-email.ftl':
             return <LoginVerifyEmail kcContext={kcContext} {...common} />
+          case 'select-authenticator.ftl':
+            return <SelectAuthenticator kcContext={kcContext} {...common} />
           case 'select-organization.ftl':
             return <SelectOrganization kcContext={kcContext} {...common} />
           case 'webauthn-register.ftl':

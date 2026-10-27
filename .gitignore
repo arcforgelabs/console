@@ -43,3 +43,8 @@ theme/dist
 theme/dist_keycloak
 theme/public/keycloakify-dev-resources
 *.tsbuildinfo
+
+# Sign-in test (e2e/)
+dist-e2e
+e2e/results
+e2e/report

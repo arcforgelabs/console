@@ -3,7 +3,8 @@ name: Release
 # Push a tag such as v0.1.0, or run the workflow by hand with a version
 # (it then tags the commit it built). This builds the commit on a
 # GitHub-hosted runner and attaches the console bundle and the Keycloak
-# theme JAR, each with a SHA-256 file, to a release. The platform repo pins
+# theme JAR, each with a SHA-256 file, to a release, after the sign-in test
+# (sign-in-test.yml) passes. The platform repo pins
 # the tag and the hashes; the deploy host never runs pnpm.
 on:
   push:
@@ -18,7 +19,14 @@ permissions:
   contents: write
 
 jobs:
+  # The release-tier sign-in test must pass before anything is published.
+  sign-in:
+    uses: ./.github/workflows/sign-in-test.yml
+    permissions:
+      contents: read
+
   release:
+    needs: sign-in
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ inputs.version || github.ref_name }}

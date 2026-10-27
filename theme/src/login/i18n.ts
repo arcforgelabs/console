@@ -16,6 +16,7 @@ const { useI18n, ofTypeI18n } = i18nBuilder
       'webauthn-passwordless-login-title': 'Sign in with a passkey',
       'webauthn-registration-title': 'Add a passkey',
       doForgotPassword: 'Forgot password?',
+      doTryAnotherWay: 'Try another way',
       configureTotpMessage:
         'Your account needs two-step sign-in. It takes about a minute.',
     },

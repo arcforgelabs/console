@@ -26,12 +26,14 @@ The Worker never trusts a header without checking the token.
 
 ## Layout
 
-| Path             | What it holds                                                           |
-| ---------------- | ----------------------------------------------------------------------- |
-| `src/`           | React app (shadcn/ui, TanStack Router, Tailwind 4)                      |
-| `worker/`        | Cloudflare Worker: Access check, `/api/me`, `/api/me/claws`             |
-| `theme/`         | Keycloak sign-in theme for accounts.arcforge.au (see `theme/README.md`) |
-| `wrangler.jsonc` | Worker config for local runs (deploy config lives in the platform repo) |
+| Path               | What it holds                                                              |
+| ------------------ | -------------------------------------------------------------------------- |
+| `src/`             | React app (shadcn/ui, TanStack Router, Tailwind 4)                         |
+| `worker/`          | Cloudflare Worker: Access check, `/api/me`, `/api/me/claws`                |
+| `theme/`           | Keycloak sign-in theme for accounts.arcforge.au (see `theme/README.md`)    |
+| `e2e/`             | Sign-in test on a real Keycloak, run before each release (`e2e/README.md`) |
+| `docs/features.md` | Feature checklist: each feature, its page, data route and owner test       |
+| `wrangler.jsonc`   | Worker config for local runs (deploy config lives in the platform repo)    |
 
 ## Run it
 
@@ -49,6 +51,7 @@ pnpm lint && pnpm format:check
 pnpm test:worker
 pnpm test:browser:install && pnpm test:ui
 pnpm build && pnpm build:worker
+pnpm test:sign-in        # release tier; needs Keycloak, see e2e/README.md
 ```
 
 ## Deploy contract
