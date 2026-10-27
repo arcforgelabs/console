@@ -60,15 +60,15 @@ The platform repo (`arcforgelabs/platform`, stack `tofu/console`) deploys a
 pinned commit of this repo. It owns the Access app, the KV namespace and all
 secrets. This repo holds no secrets and no customer data.
 
-| Item          | Value                                                                      |
-| ------------- | -------------------------------------------------------------------------- |
-| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`        |
-| Static assets | `./dist`                                                                   |
-| Worker bundle | `dist-worker/index.js`                                                     |
-| Worker name   | `arcforge-console`                                                         |
-| KV binding    | `CLAWS`, key `claws`: JSON array of claw records                           |
-| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)              |
-| Routing       | `/api/*` runs the Worker first; other paths serve assets with SPA fallback |
+| Item          | Value                                                                                                                                                                |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`                                                                                                  |
+| Static assets | `./dist`                                                                                                                                                             |
+| Worker bundle | `dist-worker/index.js`                                                                                                                                               |
+| Worker name   | `arcforge-console`                                                                                                                                                   |
+| KV binding    | `CLAWS`, key `claws`: JSON array of claw records                                                                                                                     |
+| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)                                                                                                        |
+| Routing       | Every path runs the Worker first: `/api/*` answers JSON, other paths serve assets with SPA fallback, and all get the security headers (CSP, no framing, no referrer) |
 
 Release: push a tag `vX.Y.Z`. The Release workflow builds that commit on a
 GitHub-hosted runner and attaches `arcforge-console-vX.Y.Z.tar.gz` (holds
