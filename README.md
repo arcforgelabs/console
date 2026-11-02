@@ -54,6 +54,14 @@ pnpm build && pnpm build:worker
 pnpm test:sign-in        # release tier; needs Keycloak, see e2e/README.md
 ```
 
+## Demo preview lifetime
+
+The page query client owns demo data until reload. In demo mode, cached
+fixtures do not refetch or expire after navigation. Reload creates a new
+client and restores the fixtures. Production freshness and expiry are unchanged.
+Run `pnpm test:demo-state` for unseeded browser proof across the normal
+ten-second freshness boundary. This check is separate from release sign-in.
+
 ## Deploy contract
 
 The platform repo (`arcforgelabs/platform`, stack `tofu/console`) deploys a
