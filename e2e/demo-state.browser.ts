@@ -65,3 +65,35 @@ test('support preview survives stale navigation until reload', async ({
   await page.getByRole('button', { name: /Quote PDF shows old logo/ }).waitFor()
   await expect(row).toHaveCount(0)
 })
+
+test('model choice survives stale navigation and reopen until reload', async ({
+  page,
+}) => {
+  await page.goto('/billing')
+  const settings = page.getByRole('button', {
+    name: 'Model settings',
+    exact: true,
+  })
+  await settings.click()
+  await page.getByRole('radio', { name: /^Both/ }).check()
+  await page
+    .getByRole('button', { name: 'Preview choice', exact: true })
+    .click()
+  await expect(
+    page.getByText('Demo choice saved for this page session only.')
+  ).toBeVisible()
+  await page.waitForTimeout(11_500)
+  await page.getByRole('link', { name: 'Team', exact: true }).click()
+  await page.getByRole('heading', { name: /^Team/ }).waitFor()
+  await page.getByRole('link', { name: 'Billing', exact: true }).click()
+  await settings.click()
+  await page.waitForLoadState('networkidle')
+  await settings.click()
+  await settings.click()
+  await expect(page.getByRole('radio', { name: /^Both/ })).toBeChecked()
+  await page.reload()
+  await settings.click()
+  await expect(
+    page.getByRole('radio', { name: /^Included plan/ })
+  ).toBeChecked()
+})
