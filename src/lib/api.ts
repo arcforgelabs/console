@@ -6,13 +6,25 @@ export type Me = {
   accountsUrl: string | null
 }
 
+// The Address page (platform#564): the permanent address never changes; the
+// chosen name and own domains change only through an Arc Forge support
+// request.
+type Addresses = {
+  permanent: string
+  chosenName: string
+  domains: { hostname: string; cnameTarget: string }[]
+}
+
 export type Claw = {
   name: string
   label: string
   url: string
   status?: string
   version?: string
+  addresses?: Addresses
 }
+
+export type NameCheck = { available: boolean; reason?: 'shape' | 'taken' }
 
 export class ApiError extends Error {
   constructor(public status: number) {
@@ -37,13 +49,25 @@ const demoClaws: Claw[] = [
     url: 'https://acme.arcforge.space/',
     status: 'online',
     version: '2026.10.3',
+    addresses: {
+      permanent: 'c7k2mq.arcforge.space',
+      chosenName: 'acme',
+      domains: [
+        { hostname: 'chat.acme.example', cnameTarget: 'c7k2mq.arcforge.space' },
+      ],
+    },
   },
   {
     name: 'acme-ops',
     label: 'Acme ops',
-    url: 'https://acme-ops.arcforge.space/',
+    url: 'https://cq9v4d.arcforge.space/',
     status: 'online',
     version: '2026.10.3',
+    addresses: {
+      permanent: 'cq9v4d.arcforge.space',
+      chosenName: '',
+      domains: [],
+    },
   },
 ]
 
@@ -71,6 +95,24 @@ export function useClaws() {
       demo
         ? demoClaws
         : (await getJson<{ claws: Claw[] }>('/api/me/claws')).claws,
+  })
+}
+
+// Is a chosen name free? Yes or no only. Demo mode treats the demo names
+// and "console" as taken.
+export function useNameCheck(name: string) {
+  return useQuery({
+    queryKey: ['name-check', name],
+    enabled: name.length > 0,
+    staleTime: 30 * 1000,
+    queryFn: async (): Promise<NameCheck> =>
+      demo
+        ? ['acme', 'console'].includes(name)
+          ? { available: false, reason: 'taken' }
+          : { available: true }
+        : getJson<NameCheck>(
+            `/api/names/check?name=${encodeURIComponent(name)}`
+          ),
   })
 }
 

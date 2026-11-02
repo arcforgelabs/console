@@ -1,9 +1,10 @@
 // The console Worker: static assets, plus a few JSON routes under /api/.
 // Contract with the private platform deploy (README, "Deploy"):
 //   vars ACCESS_TEAM_DOMAIN, ACCESS_AUD, ACCOUNTS_URL (optional)
-//   KV binding CLAWS, key "claws"
+//   KV binding CLAWS, keys "claws" and "taken_names"
 import { AccessError, verifyAccess } from './access'
 import { clawsFor, parseClaws } from './claws'
+import { checkName, parseTaken } from './names'
 
 export interface Env {
   ASSETS: Fetcher
@@ -49,6 +50,11 @@ export async function handleApi(
     case '/api/me/claws': {
       const records = parseClaws(await env.CLAWS.get('claws'))
       return json({ claws: clawsFor(identity.email, records) })
+    }
+    case '/api/names/check': {
+      const name = url.searchParams.get('name') ?? ''
+      const taken = parseTaken(await env.CLAWS.get('taken_names'))
+      return json(checkName(name, taken))
     }
     default:
       return json({ error: 'not found' }, 404)

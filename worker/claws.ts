@@ -9,6 +9,19 @@ export type ClawRecord = {
   groups?: string[]
   status?: string
   version?: string
+  // The Address page (platform#564).
+  id_hostname?: string
+  chosen_name?: string
+  domains?: string[]
+}
+
+// What the Address page shows: the permanent client ID address, the chosen
+// name (empty when none), and each own domain with the CNAME target the
+// customer adds at their DNS provider.
+type Addresses = {
+  permanent: string
+  chosenName: string
+  domains: { hostname: string; cnameTarget: string }[]
 }
 
 export type Claw = {
@@ -17,6 +30,7 @@ export type Claw = {
   url: string
   status?: string
   version?: string
+  addresses?: Addresses
 }
 
 const hostnamePattern = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/
@@ -54,6 +68,19 @@ export function clawsFor(email: string, records: ClawRecord[]): Claw[] {
       url: `https://${c.hostname}/`,
       status: c.status,
       version: c.version,
+      addresses: addressesOf(c),
     }))
     .sort((a, b) => a.label.localeCompare(b.label))
+}
+
+function addressesOf(c: ClawRecord): Addresses | undefined {
+  if (!c.id_hostname || !hostnamePattern.test(c.id_hostname)) return undefined
+  const permanent = c.id_hostname
+  return {
+    permanent,
+    chosenName: c.chosen_name ?? '',
+    domains: (c.domains ?? [])
+      .filter((d) => hostnamePattern.test(d))
+      .map((hostname) => ({ hostname, cnameTarget: permanent })),
+  }
 }

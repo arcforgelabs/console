@@ -3,6 +3,7 @@ import {
   BarChart3,
   Boxes,
   CreditCard,
+  Globe,
   LifeBuoy,
   Users,
 } from 'lucide-react'
@@ -22,6 +23,7 @@ export const sidebarData: SidebarData = {
     {
       title: 'Manage',
       items: [
+        { title: 'Addresses', url: '/addresses', icon: Globe },
         { title: 'Team', url: '/team', icon: Users },
         { title: 'Usage', url: '/usage', icon: BarChart3 },
         { title: 'Billing', url: '/billing', icon: CreditCard },
