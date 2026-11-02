@@ -11,9 +11,7 @@ permissions:
 
 jobs:
   check:
-    # Playwright 1.59.1 cannot install Chromium on ubuntu-latest, now 26.04
-    # (CI run 41455763933). Same pin as platform workflows.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       # Full commit SHAs. This org rejects floating tags such as @v4.
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
