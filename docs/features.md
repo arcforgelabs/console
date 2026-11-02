@@ -50,7 +50,7 @@ The sign-in tests run on a real Keycloak 26.8.1 with a realm that copies
 | Invite people, save claw access         | Team, `/team`                        | Keycloak admin, console client       | none                                                        | Planned |
 | See model use against the plan          | Usage, `/usage`                      | `/api/usage` (ClawRouter)            | `src/features/usage/index.test.tsx`                         | Demo    |
 | See plan, invoices; manage billing      | Billing, `/billing`                  | `/api/billing` (Stripe portal)       | `src/features/billing/index.test.tsx`                       | Demo    |
-| Choose how claws reach models           | Billing, `/billing` → Model settings | not decided                          | none                                                        | Planned |
+| Preview who pays for model use          | Billing, `/billing` → Model settings | `/api/model-settings` read; demo writes only | `src/features/billing/model-settings.test.tsx`       | Demo    |
 | "Not connected yet" for a missing route | every Demo page                      | 404 from the Worker                  | `src/components/page.test.tsx`                              | Live    |
 | Change theme and font on this device    | Appearance, `/settings/appearance`   | none (browser only)                  | none                                                        | Live    |
 | Sign out                                | profile menu                         | `/cdn-cgi/access/logout`             | none                                                        | Live    |

@@ -60,7 +60,7 @@ function Choices({ settings }: { settings: Settings }) {
             key={c.value}
             className={cn(
               'flex cursor-pointer gap-3 rounded-lg border p-3',
-              payer === c.value && 'border-primary ring-1 ring-primary'
+              payer === c.value && 'border-ring ring-1 ring-ring'
             )}
           >
             <input
