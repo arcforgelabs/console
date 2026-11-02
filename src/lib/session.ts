@@ -1,5 +1,5 @@
 import { QueryCache, QueryClient } from '@tanstack/react-query'
-import { ApiError } from '@/lib/api'
+import { ApiError, demo } from '@/lib/api'
 
 // A 401 from the API means the Access session ended. One reload sends the
 // browser through Cloudflare Access, which signs the person in again. If the
@@ -28,7 +28,9 @@ export function createQueryClient({
             error instanceof ApiError && [401, 403, 404].includes(error.status)
           ) && failureCount < 3,
         refetchOnWindowFocus: import.meta.env.PROD,
-        staleTime: 10 * 1000, // 10s
+        // The query cache owns demo edits until reload; fixtures only seed it.
+        staleTime: demo ? Infinity : 10 * 1000,
+        gcTime: demo ? Infinity : undefined,
       },
     },
     queryCache: new QueryCache({
