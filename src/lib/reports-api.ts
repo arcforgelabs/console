@@ -55,8 +55,6 @@ export type ReportPreferences = { enabled: boolean }
 export function useReportPreferences() {
   return useQuery({
     queryKey: ['report-preferences'],
-    // The demo cache owns this page-session choice; refetch must not reset it.
-    staleTime: demo ? Infinity : undefined,
     queryFn: () =>
       demo
         ? Promise.resolve({ enabled: false })

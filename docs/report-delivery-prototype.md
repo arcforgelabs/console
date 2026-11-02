@@ -42,7 +42,11 @@ The browser regression owner is e2e/demo-reports.browser.ts. Run
 pnpm test:demo-reports. It crosses the normal query freshness boundary before
 navigation and checks consent retention, reload reset and zero network writes.
 The initial seeded UI test missed refetch resets; the real browser test failed
-on commit 2098f2f before the demo-only freshness fix.
+on commit 2098f2f before the demo-only freshness fix. The shared page query
+client now owns freshness and retention for every editable demo preview.
+Reports uses that owner, without its former per-feature freshness override.
+The unseeded e2e/demo-state.browser.ts also crosses real 11.5-second waits for
+invites, support and model settings. Run pnpm test:demo-state.
 
 ## Security and tenant boundaries
 
