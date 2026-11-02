@@ -26,14 +26,14 @@ The Worker never trusts a header without checking the token.
 
 ## Layout
 
-| Path               | What it holds                                                              |
-| ------------------ | -------------------------------------------------------------------------- |
-| `src/`             | React app (shadcn/ui, TanStack Router, Tailwind 4)                         |
-| `worker/`          | Cloudflare Worker: Access check, `/api/me`, `/api/me/claws`                |
-| `theme/`           | Keycloak sign-in theme for accounts.arcforge.au (see `theme/README.md`)    |
-| `e2e/`             | Sign-in test on a real Keycloak, run before each release (`e2e/README.md`) |
-| `docs/features.md` | Feature checklist: each feature, its page, data route and owner test       |
-| `wrangler.jsonc`   | Worker config for local runs (deploy config lives in the platform repo)    |
+| Path               | What it holds                                                                   |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `src/`             | React app (shadcn/ui, TanStack Router, Tailwind 4)                              |
+| `worker/`          | Cloudflare Worker: Access check, `/api/me`, `/api/me/claws`, `/api/names/check` |
+| `theme/`           | Keycloak sign-in theme for accounts.arcforge.au (see `theme/README.md`)         |
+| `e2e/`             | Sign-in test on a real Keycloak, run before each release (`e2e/README.md`)      |
+| `docs/features.md` | Feature checklist: each feature, its page, data route and owner test            |
+| `wrangler.jsonc`   | Worker config for local runs (deploy config lives in the platform repo)         |
 
 ## Run it
 
@@ -60,15 +60,15 @@ The platform repo (`arcforgelabs/platform`, stack `tofu/console`) deploys a
 pinned commit of this repo. It owns the Access app, the KV namespace and all
 secrets. This repo holds no secrets and no customer data.
 
-| Item          | Value                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`                                                                                                  |
-| Static assets | `./dist`                                                                                                                                                             |
-| Worker bundle | `dist-worker/index.js`                                                                                                                                               |
-| Worker name   | `arcforge-console`                                                                                                                                                   |
-| KV binding    | `CLAWS`, key `claws`: JSON array of claw records                                                                                                                     |
-| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)                                                                                                        |
-| Routing       | Every path runs the Worker first: `/api/*` answers JSON, other paths serve assets with SPA fallback, and all get the security headers (CSP, no framing, no referrer) |
+| Item          | Value                                                                                                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`                                                                                                             |
+| Static assets | `./dist`                                                                                                                                                                        |
+| Worker bundle | `dist-worker/index.js`                                                                                                                                                          |
+| Worker name   | `arcforge-console`                                                                                                                                                              |
+| KV binding    | `CLAWS`, key `claws`: JSON array of claw records (with `id_hostname`, `chosen_name` and `domains` for the Address page); key `taken_names`: JSON array of names nobody can pick |
+| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)                                                                                                                   |
+| Routing       | Every path runs the Worker first: `/api/*` answers JSON, other paths serve assets with SPA fallback, and all get the security headers (CSP, no framing, no referrer)            |
 
 Release: push a tag `vX.Y.Z`. The Release workflow builds that commit on a
 GitHub-hosted runner and attaches `arcforge-console-vX.Y.Z.tar.gz` (holds
