@@ -26,8 +26,9 @@ export async function renderRoute(path: string, data: Record<string, unknown>) {
     defaultOptions: { queries: { retry: false, staleTime: Infinity } },
   })
   queryClient.setQueryData(['me'], me)
+  // A key with commas is a multi-part query key: 'name-check,acme'.
   for (const [key, value] of Object.entries(data))
-    queryClient.setQueryData([key], value)
+    queryClient.setQueryData(key.split(','), value)
   const router = createRouter({
     routeTree,
     context: { queryClient },

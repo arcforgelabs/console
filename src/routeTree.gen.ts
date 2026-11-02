@@ -16,6 +16,7 @@ import { Route as errors404RouteImport } from './routes/(errors)/404'
 import { Route as errors500RouteImport } from './routes/(errors)/500'
 import { Route as errors503RouteImport } from './routes/(errors)/503'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedAddressesRouteImport } from './routes/_authenticated/addresses'
 import { Route as AuthenticatedAppsRouteImport } from './routes/_authenticated/apps'
 import { Route as AuthenticatedBillingRouteImport } from './routes/_authenticated/billing'
 import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authenticated/settings/route'
@@ -58,6 +59,11 @@ const errors503Route = errors503RouteImport.update({
 const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAddressesRoute = AuthenticatedAddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAppsRoute = AuthenticatedAppsRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/addresses': typeof AuthenticatedAddressesRoute
   '/apps': typeof AuthenticatedAppsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/404': typeof errors404Route
   '/500': typeof errors500Route
   '/503': typeof errors503Route
+  '/addresses': typeof AuthenticatedAddressesRoute
   '/apps': typeof AuthenticatedAppsRoute
   '/billing': typeof AuthenticatedBillingRoute
   '/support': typeof AuthenticatedSupportRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/(errors)/404': typeof errors404Route
   '/(errors)/500': typeof errors500Route
   '/(errors)/503': typeof errors503Route
+  '/_authenticated/addresses': typeof AuthenticatedAddressesRoute
   '/_authenticated/apps': typeof AuthenticatedAppsRoute
   '/_authenticated/billing': typeof AuthenticatedBillingRoute
   '/_authenticated/support': typeof AuthenticatedSupportRoute
@@ -172,6 +181,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/addresses'
     | '/apps'
     | '/billing'
     | '/support'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/404'
     | '/500'
     | '/503'
+    | '/addresses'
     | '/apps'
     | '/billing'
     | '/support'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/(errors)/404'
     | '/(errors)/500'
     | '/(errors)/503'
+    | '/_authenticated/addresses'
     | '/_authenticated/apps'
     | '/_authenticated/billing'
     | '/_authenticated/support'
@@ -274,6 +286,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/addresses': {
+      id: '/_authenticated/addresses'
+      path: '/addresses'
+      fullPath: '/addresses'
+      preLoaderRoute: typeof AuthenticatedAddressesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/apps': {
@@ -360,6 +379,7 @@ const AuthenticatedSettingsRouteRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedSettingsRouteRoute: typeof AuthenticatedSettingsRouteRouteWithChildren
+  AuthenticatedAddressesRoute: typeof AuthenticatedAddressesRoute
   AuthenticatedAppsRoute: typeof AuthenticatedAppsRoute
   AuthenticatedBillingRoute: typeof AuthenticatedBillingRoute
   AuthenticatedSupportRoute: typeof AuthenticatedSupportRoute
@@ -371,6 +391,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedSettingsRouteRoute: AuthenticatedSettingsRouteRouteWithChildren,
+  AuthenticatedAddressesRoute: AuthenticatedAddressesRoute,
   AuthenticatedAppsRoute: AuthenticatedAppsRoute,
   AuthenticatedBillingRoute: AuthenticatedBillingRoute,
   AuthenticatedSupportRoute: AuthenticatedSupportRoute,
