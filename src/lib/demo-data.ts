@@ -190,7 +190,6 @@ export const demoBilling: Billing = {
       kind: 'addon',
     },
   ],
-  models: { included: true, own: true, ownFirst: false },
   invoices: [
     {
       id: 'in_demo_2',

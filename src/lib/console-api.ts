@@ -81,7 +81,6 @@ export type Billing = {
   plan: string
   renews: string
   items: { name: string; detail: string; kind: 'included' | 'addon' }[]
-  models: { included: boolean; own: boolean; ownFirst: boolean }
   invoices: { id: string; date: string; items: string }[]
 }
 
