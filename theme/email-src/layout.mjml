@@ -1,0 +1,48 @@
+<mjml lang="en">
+  <!--
+    Arc Forge email layout. Source of src/email/html/template.ftl.
+    Build: theme/email-src/build (MJML 4.15.3). The FreeMarker lines pass
+    through mj-raw and text blocks unchanged. Approved by Samuel on
+    2 Nov 2026 (arcforgelabs/platform#575).
+  -->
+  <mj-head>
+    <mj-title>${title}</mj-title>
+    <mj-attributes>
+      <mj-all font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" />
+      <mj-text color="#141414" padding="0 32px" />
+    </mj-attributes>
+    <mj-style>
+      @media (prefers-color-scheme: dark) {
+        .bg, .bg > div { background: #0b0b0b !important; }
+        .card, .card > table, .card td { background: #1a1a1a !important; }
+        .t div { color: #f2f2f2 !important; }
+        .m div, .m a { color: #a3a3a3 !important; }
+        .btn td, .btn a, .btn p { background: #f2f2f2 !important; color: #0b0b0b !important; }
+      }
+    </mj-style>
+  </mj-head>
+  <mj-body background-color="#f4f4f5" width="640px" css-class="bg">
+    <mj-section padding="40px 0 0">
+      <mj-column>
+        <mj-image src="${url.resourcesUrl}/img/logo.png" alt="Arc Forge" width="48px" height="48px" padding="0" />
+      </mj-column>
+    </mj-section>
+    <mj-section background-color="#ffffff" border-radius="12px" padding="40px 0 32px" css-class="card">
+      <mj-column>
+        <mj-raw><#if title?has_content></mj-raw>
+        <mj-text font-size="28px" line-height="34px" font-weight="700" align="center" padding="0 32px 16px" css-class="t">${title}</mj-text>
+        <mj-raw></#if></mj-raw>
+        <mj-text font-size="17px" line-height="26px" align="center" padding="0 40px" css-class="t">${body}</mj-text>
+        <mj-raw><#if button?has_content></mj-raw>
+        <mj-button background-color="#141414" color="#ffffff" font-size="16px" font-weight="600" border-radius="8px" inner-padding="14px 28px" padding="28px 0 0" css-class="btn" href="${link}">${button}</mj-button>
+        <mj-raw></#if></mj-raw>
+        <mj-text font-size="14px" line-height="20px" color="#6b6b6b" align="center" padding="24px 40px 0" css-class="m">${msg("arcIgnore")}</mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-section padding="24px 0 40px">
+      <mj-column>
+        <mj-text font-size="13px" line-height="20px" color="#6b6b6b" align="center" css-class="m">${kcSanitize(msg("arcFooter"))?no_esc}</mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   sign-in:
-    runs-on: ubuntu-latest
+    # Playwright 1.59.1 cannot install Chromium on ubuntu-latest, now 26.04
+    # (CI run 41455763933). Same pin as platform workflows.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
       # The same image and digest as ansible/roles/keycloak in arcforgelabs/platform.
