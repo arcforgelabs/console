@@ -54,5 +54,5 @@ The sign-in tests run on a real Keycloak 26.8.1 with a realm that copies
 | Preview who pays for model use          | Billing, `/billing` → Model settings | `/api/model-settings` read; demo writes only | `src/features/billing/model-settings.test.tsx`       | Demo    |
 | "Not connected yet" for a missing route | every Demo page                      | 404 from the Worker                  | `src/components/page.test.tsx`                              | Live    |
 | Change theme and font on this device    | Appearance, `/settings/appearance`   | none (browser only)                  | none                                                        | Live    |
-| Preview reports and delivery opt-in      | `/reports`, `/reports/<period>`       | `/api/reports`, `/api/report-preferences` reads; demo writes | `src/features/reports/index.test.tsx` | Demo |
+| Preview reports and delivery opt-in      | `/reports`, `/reports/<period>`       | `/api/reports`, `/api/report-preferences` reads; demo writes | `src/features/reports/index.test.tsx`, `e2e/demo-reports.browser.ts` | Demo |
 | Sign out                                | profile menu                         | `/cdn-cgi/access/logout`             | none                                                        | Live    |

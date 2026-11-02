@@ -38,6 +38,12 @@ payload. Its console renderer is a mock, not the stock Gateway renderer.
 The opt-in switch starts off, updates only the local query cache and resets on
 reload. It performs no delivery or schedule setup. No extra server is required.
 
+The browser regression owner is e2e/demo-reports.browser.ts. Run
+pnpm test:demo-reports. It crosses the normal query freshness boundary before
+navigation and checks consent retention, reload reset and zero network writes.
+The initial seeded UI test missed refetch resets; the real browser test failed
+on commit 2098f2f before the demo-only freshness fix.
+
 ## Security and tenant boundaries
 
 - Synthetic, public-safe report data only. No patient, customer or secret data.
