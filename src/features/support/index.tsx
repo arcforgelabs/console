@@ -1,4 +1,3 @@
-import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   type SupportRequest,
@@ -16,6 +15,7 @@ import {
 } from '@/components/ui/collapsible'
 import { More } from '@/components/more'
 import { Page, QueryView } from '@/components/page'
+import { NewRequest } from './new-request'
 
 const stateLabel: Record<SupportState, string> = {
   new: 'New',
@@ -28,18 +28,7 @@ const stateLabel: Record<SupportState, string> = {
 export function Support() {
   const query = useSupport()
   return (
-    <Page
-      title='Support'
-      actions={
-        <Button
-          onClick={() =>
-            toast('New requests come with the support connection.')
-          }
-        >
-          <Plus /> New request
-        </Button>
-      }
-    >
+    <Page title='Support' actions={<NewRequest />}>
       <QueryView query={query} what='The support list'>
         {(requests) => <SupportView requests={requests} />}
       </QueryView>
@@ -97,6 +86,12 @@ function RequestRow({ request }: { request: SupportRequest }) {
         <StateBadge request={request} />
       </CollapsibleTrigger>
       <CollapsibleContent className='px-4 pb-4'>
+        {request.demoDetails && (
+          <p className='mb-4 text-sm text-muted-foreground'>
+            Demo only · {request.demoDetails.claw} · Requested priority:{' '}
+            {request.demoDetails.priority}. Not sent.
+          </p>
+        )}
         <ol className='space-y-3 border-s ps-4'>
           {request.steps.map((s, i) => (
             <li key={s.label} className='relative'>

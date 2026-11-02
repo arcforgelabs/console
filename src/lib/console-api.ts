@@ -74,6 +74,7 @@ export type SupportRequest = {
   rating?: 'good' | 'bad'
   updated: string
   steps: { label: string; at?: string; note?: string }[]
+  demoDetails?: { claw: string; priority: 'normal' | 'urgent' }
 }
 
 export type Billing = {
