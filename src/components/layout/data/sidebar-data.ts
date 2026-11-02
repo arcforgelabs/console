@@ -17,6 +17,7 @@ export const sidebarData: SidebarData = {
         { title: 'Claws', url: '/', icon: Boxes },
         { title: 'Apps', url: '/apps', icon: AppWindow },
         { title: 'Support', url: '/support', icon: LifeBuoy },
+        { title: 'Reports', url: '/reports', icon: BarChart3 },
       ],
     },
     {
