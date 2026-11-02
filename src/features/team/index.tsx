@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { UserPlus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   type Team as TeamData,
@@ -8,7 +7,6 @@ import {
 } from '@/lib/console-api'
 import { initials, since } from '@/lib/format'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,6 +14,7 @@ import {
 } from '@/components/ui/collapsible'
 import { Switch } from '@/components/ui/switch'
 import { Page, QueryView } from '@/components/page'
+import { Invite } from './invite'
 
 const roleLabel = { owner: 'Owner', admin: 'Admin', member: '' }
 
@@ -28,14 +27,10 @@ export function Team() {
       description={
         team && `${team.members.length} of ${team.seatsIncluded} seats used.`
       }
-      actions={
-        <Button onClick={() => toast('Invites come with the sign-in service.')}>
-          <UserPlus /> Invite
-        </Button>
-      }
+      actions={team && <Invite team={team} />}
     >
       <QueryView query={query} what='The team list'>
-        {(data) => <People team={data} />}
+        {(data) => <People key={data.members.length} team={data} />}
       </QueryView>
     </Page>
   )
