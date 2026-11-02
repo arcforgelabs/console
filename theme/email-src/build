@@ -1,0 +1,14 @@
+#!/bin/sh
+# Compile the MJML layout into the Keycloak email layout macro.
+# Run from theme/: email-src/build   (needs network for npx the first time)
+set -eu
+cd "$(dirname "$0")/.."
+html=$(npx -y mjml@4.15.3 email-src/layout.mjml -s --config.validationLevel=strict --config.minify=false --config.keepComments=false)
+{
+  echo '<#-- Generated from email-src/layout.mjml by email-src/build. Do not edit by hand. -->'
+  echo '<#macro emailLayout title="" button="" link="">'
+  echo '<#assign body><#nested></#assign>'
+  printf '%s\n' "$html" | grep -v '^<!-- FILE: '
+  echo '</#macro>'
+} > src/email/html/template.ftl
+echo "wrote src/email/html/template.ftl"
