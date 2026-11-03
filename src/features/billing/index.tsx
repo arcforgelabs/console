@@ -11,9 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
 import { More } from '@/components/more'
 import { Page, QueryView } from '@/components/page'
+import { ModelSettings } from './model-settings'
 
 const soon = () =>
   toast('Billing opens the Stripe customer portal when it is connected.')
@@ -31,11 +31,6 @@ export function Billing() {
 
 // The plan and one button. Invoices and model settings stay closed.
 function BillingView({ billing }: { billing: BillingData }) {
-  const models: [keyof BillingData['models'], string, string][] = [
-    ['included', 'Included plan', 'Through ClawRouter. Nothing to set up.'],
-    ['own', 'Own subscription', 'Sign in your own model account on a claw.'],
-    ['ownFirst', 'Use own first', 'Fall back to the included plan at a limit.'],
-  ]
   return (
     <Card className='max-w-xl'>
       <CardHeader>
@@ -65,25 +60,7 @@ function BillingView({ billing }: { billing: BillingData }) {
           </ul>
         </More>
         <More label='Model settings'>
-          <div className='divide-y'>
-            {models.map(([key, name, detail]) => (
-              <label
-                key={key}
-                className='flex items-center justify-between gap-3 py-2'
-              >
-                <span className='min-w-0'>
-                  <span className='block text-sm font-medium'>{name}</span>
-                  <span className='block text-xs text-muted-foreground'>
-                    {detail}
-                  </span>
-                </span>
-                <Switch
-                  defaultChecked={billing.models[key]}
-                  onCheckedChange={() => toast(`${name}: not saved yet`)}
-                />
-              </label>
-            ))}
-          </div>
+          <ModelSettings />
         </More>
       </CardContent>
       <CardFooter>
