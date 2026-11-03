@@ -14,6 +14,7 @@
     "test": "vitest run --project worker && vitest run --project ui --browser.headless",
     "test:ui": "vitest run --project ui --browser.headless",
     "test:demo-state": "playwright test --config e2e/demo-state.config.ts",
+    "test:demo-reports": "playwright test --config e2e/demo-reports.config.ts",
     "test:browser:install": "playwright install chromium --with-deps",
     "build:worker": "wrangler deploy --dry-run --outdir dist-worker",
     "dev:worker": "wrangler dev",
