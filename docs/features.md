@@ -45,7 +45,8 @@ The sign-in tests run on a real Keycloak 26.8.1 with a realm that copies
 | See my apps and care plans              | Apps, `/apps`                        | `/api/apps` (Stripe)                 | `src/features/apps/index.test.tsx`                          | Demo    |
 | Start or change a care plan             | Apps, `/apps` → Details              | Stripe checkout                      | none                                                        | Planned |
 | See support requests and progress       | Support, `/support`                  | `/api/support` (support relay)       | `src/features/support/index.test.tsx`                       | Demo    |
-| Open a new support request, add a note  | Support, `/support`                  | support relay                        | none                                                        | Planned |
+| Preview a new support request           | Support, `/support`                  | demo cache only; relay deferred      | `src/features/support/new-request.test.tsx`                 | Demo    |
+| Add a support note                      | Support, `/support`                  | support relay                        | none                                                        | Planned |
 | See seats and who opens which claw      | Team, `/team`                        | `/api/team` (Keycloak organisations) | `src/features/team/index.test.tsx`                          | Demo    |
 | Preview an invite with claw access      | Team, `/team`                        | demo cache only; real grants deferred | `src/features/team/invite.test.tsx`                         | Demo    |
 | See model use against the plan          | Usage, `/usage`                      | `/api/usage` (ClawRouter)            | `src/features/usage/index.test.tsx`                         | Demo    |
