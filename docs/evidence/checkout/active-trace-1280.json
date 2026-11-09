@@ -1,0 +1,132 @@
+{
+  "synthetic": true,
+  "externalNetwork": false,
+  "viewport": {
+    "width": 1280,
+    "height": 900
+  },
+  "events": [
+    {
+      "boundary": "Turnstile synthetic",
+      "action": "checkout",
+      "token": "[redacted]",
+      "success": true
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/prices/price_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "browser": "durable recovery navigation",
+      "path": "/buy/status",
+      "cookie": "[redacted Secure HttpOnly SameSite=Strict]",
+      "sessionPosts": 0
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "POST",
+      "path": "/v1/checkout/sessions",
+      "authorization": "[redacted]"
+    },
+    {
+      "authority": "D1 order precedes session effect",
+      "order": "[order-1]",
+      "idempotency": "[stable-order-key]",
+      "replay": false
+    },
+    {
+      "authority": "missing capability refused after uncertainty",
+      "http": 404,
+      "stripeRequestDelta": 0
+    },
+    {
+      "authority": "forged capability refused after uncertainty",
+      "http": 404,
+      "stripeRequestDelta": 0
+    },
+    {
+      "authority": "invalidated capability refused after uncertainty",
+      "http": 404,
+      "stripeRequestDelta": 0
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "POST",
+      "path": "/v1/checkout/sessions",
+      "authorization": "[redacted]"
+    },
+    {
+      "authority": "D1 order precedes session effect",
+      "order": "[order-1]",
+      "idempotency": "[stable-order-key]",
+      "replay": true
+    },
+    {
+      "browser": "external Stripe redirect",
+      "destination": "https://checkout.stripe.com/c/pay/synthetic",
+      "synthetic": true
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/checkout/sessions/cs_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/subscriptions/sub_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/invoice_payments",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/checkout/sessions/cs_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/subscriptions/sub_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/checkout/sessions/cs_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/subscriptions/sub_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/checkout/sessions/cs_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "boundary": "Stripe synthetic wire",
+      "method": "GET",
+      "path": "/v1/subscriptions/sub_synthetic",
+      "authorization": "[redacted]"
+    },
+    {
+      "browser": "return and explicit refresh",
+      "status": "confirmed",
+      "provisioningAuthority": false,
+      "sandboxAcceptance": false
+    }
+  ]
+}
