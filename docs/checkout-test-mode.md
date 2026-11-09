@@ -10,13 +10,25 @@ The existing Worker serves public /buy, /buy/status, /checkout/* and
 Only the two buy pages allow the Turnstile script/frame in CSP. Platform must
 separately configure Access bypass for these exact public paths, not /api/*.
 
-Official Stripe SDK, sk_test_ keys only. Live keys/events/prices are rejected.
+Official Stripe SDK; prefer a restricted sandbox key (rk_test_). sk_test_ is also
+accepted for compatibility. Live, organization, publishable and unknown key
+prefixes, plus live events/prices/provider responses, are rejected.
+[Stripe recommends restricted keys](https://docs.stripe.com/keys) over unrestricted
+secret keys. The source requires Checkout Sessions: Write (create/retrieve),
+Prices: Read, Subscriptions: Read, Invoices: Read, Invoice Payments: Read and
+Payment Intents: Read (expanded payment-failure facts). No product/price creation,
+refund, payout, account administration or customer write API is called directly.
+Confirm the sandbox Dashboard permission dependencies and expanded-resource
+access with real acceptance before activation; this list grants no new access.
+Webhook signature verification uses the separate endpoint signing secret.
 CHECKOUT_CATALOGUE is server-owned JSON of {sku,label,price_id}; absent means [].
 No real SKU or price is included. Browser input selects a SKU, never a price,
 tenant or owner. Stripe Checkout displays the provider price before payment.
 
 POST /checkout/orders verifies exact Origin, native rate limiter and server-side
-Turnstile hostname + action=checkout. It writes a D1 order with immutable price
+Turnstile hostname + action=checkout, then verifies that the server-selected Stripe
+price is active, recurring and in test mode before admission. It writes a D1 order
+with immutable price
 and origin and a hashed random capability before any Stripe creation. The
 Secure/HttpOnly/SameSite=Strict host-only cookie grants status/session access.
 The browser then navigates to status; Continue this checkout creates or resumes
@@ -24,7 +36,8 @@ the Stripe session. Two steps intentionally retain a recovery page before any
 uncertain provider effect. The return URL carries no payment authority.
 
 Session creation uses checkout-v1-ORDER_UUID. All effect parameters are pinned.
-Retry uses the same order/key, including after a lost response. Uncertain orders
+Retry uses the same order/key, including after a lost response and later price
+archival; reconciliation never repeats the mutable active-price admission check. Uncertain orders
 older than 23 hours fail closed before Stripe can prune its 24-hour key. No
 automatic new purchase follows an error. One browser cookie retains one current
 order; clearing/replacing it loses self-service access (support recovery is not

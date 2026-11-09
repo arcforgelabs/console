@@ -62,7 +62,7 @@ function catalogue(env: CheckoutEnv): Product[] {
 }
 function configured(env: CheckoutEnv) {
   if (
-    !env.STRIPE_SECRET_KEY?.startsWith('sk_test_') ||
+    !/^(?:sk|rk)_test_.+/.test(env.STRIPE_SECRET_KEY || '') ||
     !env.CHECKOUT_DB ||
     !env.PROVISIONING_QUEUE ||
     !env.STRIPE_WEBHOOK_SECRET ||
@@ -187,9 +187,6 @@ async function createSession(order: Order, env: CheckoutEnv) {
   // Stripe may prune keys after 24 hours. Never recreate an uncertain old effect.
   if (Date.now() - order.created_at >= 23 * 3600000)
     reject(409, 'Order expired. Contact support before starting again.')
-  const price = await stripe.prices.retrieve(order.price_id)
-  if (price.livemode || !price.active || price.type !== 'recurring')
-    reject(503, 'Test subscription price unavailable')
   const session = await stripe.checkout.sessions.create(
     {
       mode: 'subscription',
@@ -416,6 +413,11 @@ export async function handleCheckout(
       const product = catalogue(env).find((p) => p.sku === body.sku)
       if (!product) reject(400, 'Select an available product')
       await verifyHuman(request, env, body.turnstile_token)
+      // Admit a valid test price once; recovery must replay the immutable order
+      // even if the price is later archived after a successful, unseen effect.
+      const price = await stripe.prices.retrieve(product!.price_id)
+      if (price.livemode || !price.active || price.type !== 'recurring')
+        reject(503, 'Test subscription price unavailable')
       const id = crypto.randomUUID()
       const secret = Array.from(
         crypto.getRandomValues(new Uint8Array(32)),

@@ -24,6 +24,9 @@ let orderId = ''
 let cookie = ''
 let human = true
 let livePrice = false
+let activePrice = true
+let priceType = 'recurring'
+let stripeRequests = 0
 let providerState = 'pending'
 let loseCreateResponse = true
 const providerSessions = new Map<string, string>()
@@ -144,12 +147,13 @@ beforeAll(async () => {
             })
           if (url.hostname !== 'api.stripe.com')
             throw new Error('Unexpected external network: ' + url.hostname)
+          stripeRequests++
           if (url.pathname === '/v1/prices/price_synthetic')
             return RuntimeResponse.json({
               id: 'price_synthetic',
-              active: true,
+              active: activePrice,
               livemode: livePrice,
-              type: 'recurring',
+              type: priceType,
             })
           if (
             url.pathname === '/v1/checkout/sessions' &&
@@ -328,7 +332,32 @@ describe.sequential(
       ).toBe(0)
       human = true
     })
-    it('writes intent and capability before Stripe; resumes uncertain creation with exactly the same provider idempotency key', async () => {
+    it('admits only active recurring test prices before durable intent', async () => {
+      for (const invalid of ['live', 'archived', 'one_time']) {
+        livePrice = invalid === 'live'
+        activePrice = invalid !== 'archived'
+        priceType = invalid === 'one_time' ? 'one_time' : 'recurring'
+        expect(
+          (
+            await post('/checkout/orders', {
+              sku: 'synthetic',
+              turnstile_token: 'token',
+            })
+          ).status
+        ).toBe(503)
+        expect(
+          await db
+            .prepare('SELECT count(*) AS n FROM checkout_orders')
+            .first('n')
+        ).toBe(0)
+      }
+      livePrice = false
+      activePrice = true
+      priceType = 'recurring'
+    })
+    it('recovers a created session after response loss and price archival with the original key', async () => {
+      livePrice = false
+      activePrice = true
       const order = await post('/checkout/orders', {
         sku: 'synthetic',
         turnstile_token: 'token',
@@ -354,12 +383,50 @@ describe.sequential(
         .prepare('UPDATE checkout_orders SET created_at = ? WHERE id = ?')
         .bind(Date.now(), orderId)
         .run()
-      livePrice = true
+      // Denied capabilities must not reach any Stripe endpoint, even on retry.
+      const deny = async () => {
+        const before = stripeRequests
+        for (const deniedCookie of [
+          '',
+          cookie.slice(0, -1) + (cookie.endsWith('a') ? 'b' : 'a'),
+        ]) {
+          const response = await post(
+            '/checkout/session',
+            {},
+            { cookie: deniedCookie }
+          )
+          expect(response.status).toBe(404)
+          expect(await response.json()).toEqual({ error: 'Order not found' })
+        }
+        const savedHash = stored!.capability_hash
+        await db
+          .prepare(
+            'UPDATE checkout_orders SET capability_hash = ? WHERE id = ?'
+          )
+          .bind('invalidated', orderId)
+          .run()
+        const invalidated = await post('/checkout/session', {}, { cookie })
+        expect(invalidated.status).toBe(404)
+        expect(await invalidated.json()).toEqual({ error: 'Order not found' })
+        expect(stripeRequests).toBe(before)
+        await db
+          .prepare(
+            'UPDATE checkout_orders SET capability_hash = ? WHERE id = ?'
+          )
+          .bind(savedHash, orderId)
+          .run()
+      }
+      await deny()
       expect((await post('/checkout/session', {}, { cookie })).status).toBe(503)
-      expect(keys).toHaveLength(0)
-      livePrice = false
-
-      expect((await post('/checkout/session', {}, { cookie })).status).toBe(503)
+      expect(providerSessions.size).toBe(1) // External creation succeeded; response was lost.
+      expect(
+        await db
+          .prepare('SELECT session_id FROM checkout_orders WHERE id = ?')
+          .bind(orderId)
+          .first('session_id')
+      ).toBeNull()
+      activePrice = false
+      await deny()
       const retry = await post('/checkout/session', {}, { cookie })
       expect(retry.status).toBe(200)
       expect(await retry.json()).toEqual({
@@ -367,6 +434,7 @@ describe.sequential(
       })
       expect(keys).toEqual(['checkout-v1-' + orderId, 'checkout-v1-' + orderId])
       expect(providerSessions.size).toBe(1)
+      activePrice = true
       expect(params.get('line_items[0][price]')).toBe('price_synthetic')
       expect(params.get('subscription_data[metadata][order_id]')).toBe(orderId)
     })
@@ -462,14 +530,34 @@ describe.sequential(
     it('fails closed without a limiter or with live keys and enforces the native rate limit', async () => {
       await reconfigure({ ratelimits: {} })
       expect((await getStatus()).status).toBe(503)
+      for (const key of [
+        'sk_live_synthetic',
+        'rk_live_synthetic',
+        'sk_org_synthetic',
+        'pk_test_synthetic',
+        'unknown',
+        '',
+      ]) {
+        const before = stripeRequests
+        await reconfigure({
+          bindings: {
+            CHECKOUT_ORIGIN: origin,
+            STRIPE_SECRET_KEY: key,
+            STRIPE_WEBHOOK_SECRET: secret,
+          },
+        })
+        expect((await getStatus()).status).toBe(503)
+        expect(stripeRequests).toBe(before)
+      }
       await reconfigure({
         bindings: {
           CHECKOUT_ORIGIN: origin,
-          STRIPE_SECRET_KEY: 'sk_live_synthetic',
+          STRIPE_SECRET_KEY: 'rk_test_synthetic',
           STRIPE_WEBHOOK_SECRET: secret,
         },
       })
-      expect((await getStatus()).status).toBe(503)
+      // No capability is needed to prove the restricted key reaches owner refusal.
+      expect((await getStatus({ cookie: '' })).status).toBe(404)
       await reconfigure({
         ratelimits: {
           CHECKOUT_LIMITER: {
@@ -478,9 +566,9 @@ describe.sequential(
           },
         },
       })
-      expect((await getStatus()).status).toBe(200)
-      expect((await getStatus()).status).toBe(429)
+      expect((await getStatus({ cookie: '' })).status).toBe(404)
+      expect((await getStatus({ cookie: '' })).status).toBe(429)
       await reconfigure({})
-    })
+    }, 30000)
   }
 )

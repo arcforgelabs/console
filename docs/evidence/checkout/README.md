@@ -1,10 +1,14 @@
 # Checkout source proof — 2026-11-09
 
-Branch: arc/stripe-checkout-44. Uncommitted source based on
-8ef6f0f3586a9a04dfc25abe7e8241ffd3482762; no commit, push, deployment or provider
-write was performed.
+Branch: arc/stripe-checkout-44. Initial candidate:
+2eac8351533089e079d1b234a71dfc2b367d6e17 (base
+8ef6f0f3586a9a04dfc25abe7e8241ffd3482762). Review repairs below are uncommitted;
+no commit, push, deployment or provider write was performed by the repair worker.
 
-## Passed
+The [bounded review-repair proof](review-repairs.md) supersedes the initial
+missing active-browser evidence below and records the archival/capability/key repairs.
+
+## Initial candidate checks
 
 - pnpm lint
 - pnpm format:check

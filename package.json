@@ -19,7 +19,8 @@
     "build:worker": "wrangler deploy --dry-run --outdir dist-worker",
     "dev:worker": "wrangler dev",
     "test:worker": "vitest run --project worker",
-    "test:sign-in": "playwright test --config e2e/playwright.config.ts"
+    "test:sign-in": "playwright test --config e2e/playwright.config.ts",
+    "test:checkout": "playwright test --config e2e/checkout.config.ts"
   },
   "dependencies": {
     "@fontsource-variable/geist": "5.3.0",
