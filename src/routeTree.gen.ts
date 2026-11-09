@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as BuyRouteImport } from './routes/buy'
 import { Route as errors401RouteImport } from './routes/(errors)/401'
 import { Route as errors403RouteImport } from './routes/(errors)/403'
 import { Route as errors404RouteImport } from './routes/(errors)/404'
@@ -22,6 +23,8 @@ import { Route as AuthenticatedSettingsRouteRouteImport } from './routes/_authen
 import { Route as AuthenticatedSupportRouteImport } from './routes/_authenticated/support'
 import { Route as AuthenticatedTeamRouteImport } from './routes/_authenticated/team'
 import { Route as AuthenticatedUsageRouteImport } from './routes/_authenticated/usage'
+import { Route as BuyIndexRouteImport } from './routes/buy.index'
+import { Route as BuyStatusRouteImport } from './routes/buy.status'
 import { Route as AuthenticatedErrorsErrorRouteImport } from './routes/_authenticated/errors/$error'
 import { Route as AuthenticatedReportsIndexRouteImport } from './routes/_authenticated/reports.index'
 import { Route as AuthenticatedReportsPeriodRouteImport } from './routes/_authenticated/reports.$period'
@@ -30,6 +33,11 @@ import { Route as AuthenticatedSettingsAppearanceRouteImport } from './routes/_a
 
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
   id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuyRoute = BuyRouteImport.update({
+  id: '/buy',
+  path: '/buy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const errors401Route = errors401RouteImport.update({
@@ -93,6 +101,16 @@ const AuthenticatedUsageRoute = AuthenticatedUsageRouteImport.update({
   path: '/usage',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const BuyIndexRoute = BuyIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BuyRoute,
+} as any)
+const BuyStatusRoute = BuyStatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => BuyRoute,
+} as any)
 const AuthenticatedErrorsErrorRoute =
   AuthenticatedErrorsErrorRouteImport.update({
     id: '/errors/$error',
@@ -126,6 +144,7 @@ const AuthenticatedSettingsAppearanceRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/buy': typeof BuyRouteWithChildren
   '/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/401': typeof errors401Route
   '/403': typeof errors403Route
@@ -137,6 +156,8 @@ export interface FileRoutesByFullPath {
   '/support': typeof AuthenticatedSupportRoute
   '/team': typeof AuthenticatedTeamRoute
   '/usage': typeof AuthenticatedUsageRoute
+  '/buy/status': typeof BuyStatusRoute
+  '/buy/': typeof BuyIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/reports/$period': typeof AuthenticatedReportsPeriodRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -154,7 +175,9 @@ export interface FileRoutesByTo {
   '/support': typeof AuthenticatedSupportRoute
   '/team': typeof AuthenticatedTeamRoute
   '/usage': typeof AuthenticatedUsageRoute
+  '/buy/status': typeof BuyStatusRoute
   '/': typeof AuthenticatedIndexRoute
+  '/buy': typeof BuyIndexRoute
   '/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/reports/$period': typeof AuthenticatedReportsPeriodRoute
   '/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -164,6 +187,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/buy': typeof BuyRouteWithChildren
   '/_authenticated/settings': typeof AuthenticatedSettingsRouteRouteWithChildren
   '/(errors)/401': typeof errors401Route
   '/(errors)/403': typeof errors403Route
@@ -175,7 +199,9 @@ export interface FileRoutesById {
   '/_authenticated/support': typeof AuthenticatedSupportRoute
   '/_authenticated/team': typeof AuthenticatedTeamRoute
   '/_authenticated/usage': typeof AuthenticatedUsageRoute
+  '/buy/status': typeof BuyStatusRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/buy/': typeof BuyIndexRoute
   '/_authenticated/errors/$error': typeof AuthenticatedErrorsErrorRoute
   '/_authenticated/reports/$period': typeof AuthenticatedReportsPeriodRoute
   '/_authenticated/settings/appearance': typeof AuthenticatedSettingsAppearanceRoute
@@ -186,6 +212,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/buy'
     | '/settings'
     | '/401'
     | '/403'
@@ -197,6 +224,8 @@ export interface FileRouteTypes {
     | '/support'
     | '/team'
     | '/usage'
+    | '/buy/status'
+    | '/buy/'
     | '/errors/$error'
     | '/reports/$period'
     | '/settings/appearance'
@@ -214,7 +243,9 @@ export interface FileRouteTypes {
     | '/support'
     | '/team'
     | '/usage'
+    | '/buy/status'
     | '/'
+    | '/buy'
     | '/errors/$error'
     | '/reports/$period'
     | '/settings/appearance'
@@ -223,6 +254,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/buy'
     | '/_authenticated/settings'
     | '/(errors)/401'
     | '/(errors)/403'
@@ -234,7 +266,9 @@ export interface FileRouteTypes {
     | '/_authenticated/support'
     | '/_authenticated/team'
     | '/_authenticated/usage'
+    | '/buy/status'
     | '/_authenticated/'
+    | '/buy/'
     | '/_authenticated/errors/$error'
     | '/_authenticated/reports/$period'
     | '/_authenticated/settings/appearance'
@@ -244,6 +278,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  BuyRoute: typeof BuyRouteWithChildren
   errors401Route: typeof errors401Route
   errors403Route: typeof errors403Route
   errors404Route: typeof errors404Route
@@ -258,6 +293,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/buy': {
+      id: '/buy'
+      path: '/buy'
+      fullPath: '/buy'
+      preLoaderRoute: typeof BuyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/(errors)/401': {
@@ -344,6 +386,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedUsageRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/buy/': {
+      id: '/buy/'
+      path: '/'
+      fullPath: '/buy/'
+      preLoaderRoute: typeof BuyIndexRouteImport
+      parentRoute: typeof BuyRoute
+    }
+    '/buy/status': {
+      id: '/buy/status'
+      path: '/status'
+      fullPath: '/buy/status'
+      preLoaderRoute: typeof BuyStatusRouteImport
+      parentRoute: typeof BuyRoute
+    }
     '/_authenticated/errors/$error': {
       id: '/_authenticated/errors/$error'
       path: '/errors/$error'
@@ -427,8 +483,21 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
+interface BuyRouteChildren {
+  BuyStatusRoute: typeof BuyStatusRoute
+  BuyIndexRoute: typeof BuyIndexRoute
+}
+
+const BuyRouteChildren: BuyRouteChildren = {
+  BuyStatusRoute: BuyStatusRoute,
+  BuyIndexRoute: BuyIndexRoute,
+}
+
+const BuyRouteWithChildren = BuyRoute._addFileChildren(BuyRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  BuyRoute: BuyRouteWithChildren,
   errors401Route: errors401Route,
   errors403Route: errors403Route,
   errors404Route: errors404Route,

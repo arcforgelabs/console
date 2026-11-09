@@ -3,9 +3,14 @@
 //   vars ACCESS_TEAM_DOMAIN, ACCESS_AUD, ACCOUNTS_URL (optional)
 //   KV binding CLAWS, key "claws"
 import { AccessError, verifyAccess } from './access'
+import {
+  handleCheckout,
+  flushCheckoutOutbox,
+  type CheckoutEnv,
+} from './checkout'
 import { clawsFor, parseClaws } from './claws'
 
-export interface Env {
+export interface Env extends CheckoutEnv {
   ASSETS: Fetcher
   CLAWS: KVNamespace
   ACCESS_TEAM_DOMAIN: string
@@ -80,9 +85,30 @@ export default {
     const url = new URL(request.url)
     const res = url.pathname.startsWith('/api/')
       ? await handleApi(request, env)
-      : await env.ASSETS.fetch(request)
+      : url.pathname.startsWith('/checkout/') ||
+          url.pathname === '/webhooks/stripe'
+        ? await handleCheckout(request, env)
+        : await env.ASSETS.fetch(request)
     const out = new Response(res.body, res)
     for (const [k, v] of Object.entries(security)) out.headers.set(k, v)
+    if (
+      url.pathname === '/buy' ||
+      url.pathname === '/buy/' ||
+      url.pathname === '/buy/status'
+    ) {
+      out.headers.set(
+        'content-security-policy',
+        security['content-security-policy'].replace(
+          "script-src 'self'",
+          "script-src 'self' https://challenges.cloudflare.com"
+        ) +
+          "; frame-src https://challenges.cloudflare.com; connect-src 'self' https://challenges.cloudflare.com"
+      )
+      out.headers.set('cache-control', 'no-store')
+    }
     return out
+  },
+  async scheduled(_event: ScheduledController, env: Env) {
+    if (env.CHECKOUT_DB) await flushCheckoutOutbox(env)
   },
 } satisfies ExportedHandler<Env>

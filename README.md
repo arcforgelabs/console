@@ -68,15 +68,15 @@ The platform repo (`arcforgelabs/platform`, stack `tofu/console`) deploys a
 pinned commit of this repo. It owns the Access app, the KV namespace and all
 secrets. This repo holds no secrets and no customer data.
 
-| Item          | Value                                                                                                                                                                |
-| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`                                                                                                  |
-| Static assets | `./dist`                                                                                                                                                             |
-| Worker bundle | `dist-worker/index.js`                                                                                                                                               |
-| Worker name   | `arcforge-console`                                                                                                                                                   |
-| KV binding    | `CLAWS`, key `claws`: JSON array of claw records                                                                                                                     |
-| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)                                                                                                        |
-| Routing       | Every path runs the Worker first: `/api/*` answers JSON, other paths serve assets with SPA fallback, and all get the security headers (CSP, no framing, no referrer) |
+| Item          | Value                                                                                                                                                                                                                     |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build command | `pnpm install --frozen-lockfile && pnpm build && pnpm build:worker`                                                                                                                                                       |
+| Static assets | `./dist`                                                                                                                                                                                                                  |
+| Worker bundle | `dist-worker/index.js`                                                                                                                                                                                                    |
+| Worker name   | `arcforge-console`                                                                                                                                                                                                        |
+| KV binding    | `CLAWS`, key `claws`: JSON array of claw records                                                                                                                                                                          |
+| Vars          | `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `ACCOUNTS_URL` (optional)                                                                                                                                                             |
+| Routing       | Every path runs the Worker first: `/api/*` answers JSON, public checkout endpoints handle test purchases; remaining paths serve assets with SPA fallback, and all get the security headers (CSP, no framing, no referrer) |
 
 Release: push a tag `vX.Y.Z`. The Release workflow builds that commit on a
 GitHub-hosted runner and attaches `arcforge-console-vX.Y.Z.tar.gz` (holds
@@ -98,6 +98,13 @@ Claw record:
   "version": "2026.10.1"
 }
 ```
+
+## Test checkout (inactive by default)
+
+Public `/buy` and `/buy/status` use `/checkout/*` and `/webhooks/stripe`,
+not `/api/*`. All existing API authentication is unchanged. The server catalogue
+is empty by default; no provider resources or real prices are configured.
+See [test checkout contract and activation gates](docs/checkout-test-mode.md).
 
 ## Plan
 
